@@ -6,6 +6,7 @@ The system is planned to use a Raspberry Pi as the central server.
 
 ### Technology Used
 - Python <br>
+- Flutter <br>
 - Raspberry Pi
 
 ### Team 
