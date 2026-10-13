@@ -178,6 +178,7 @@ class RequestBoardSection extends StatelessWidget {
   }
 }
 
+// TODO: make this expandable, maybe add some fancy animations. Add buttons relevant for each request type shown as well.
 class RequestListTile extends StatelessWidget {
   const new({super.key, required this.title, required this.description});
   final String title;
