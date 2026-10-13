@@ -2,6 +2,20 @@ import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
 
+enum RequestType {
+  acceptedByMe,
+  requestedByMe,
+  requestedByOther
+}
+
+class DummyRequest {
+  const new({required this.title, required this.description, required this.type, this.accepted = false});
+  final String title;
+  final String description;
+  final RequestType type;
+  final bool accepted;
+}
+
 class MainPage extends StatelessWidget {
   const new({super.key});
 
@@ -19,6 +33,16 @@ class MainPageStructure extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        Padding(
+          padding: .directional(top: DefaultSpacing.large),
+          child: Column(
+            spacing: DefaultSpacing.small,
+            children: [
+              Expanded(child: RequestBoard()),
+              Align(alignment: .bottomCenter, child: MainPageStatusBar()),
+            ],
+          ),
+        ),
         Positioned(
           // These are arbitrarily chosen coordinates.
           right: 80,
@@ -28,11 +52,6 @@ class MainPageStructure extends StatelessWidget {
             label: TitleText("Request Help", size: .medium),
             icon: Icon(Icons.add),
           ),
-        ),
-        Align(alignment: .bottomCenter, child: MainPageStatusBar()),
-        Padding(
-          padding: const EdgeInsets.only(top: DefaultSpacing.medium),
-          child: Center(child: RequestBoard()),
         ),
       ],
     );
@@ -90,47 +109,71 @@ class StatusIndicator extends StatelessWidget {
 
 /// Contains the accepted, requested, and requested by others lists.
 class RequestBoard extends StatelessWidget {
-  const new({super.key});
+  new({super.key});
+  // TODO: remove this and provide it through a bloc or cubit.
+  final List<DummyRequest> requests = [
+    DummyRequest(title: "Burga", description: "This a burga", type: .acceptedByMe),
+    DummyRequest(title: "Burga", description: "This a burga", type: .requestedByMe),
+    DummyRequest(title: "Burga", description: "This a burga", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
+
+  ];
 
   @override
   Widget build(BuildContext context) {
-    // TODO: make this into a sliver. 
-    return Column(
-      spacing: DefaultSpacing.extraLarge,
-      children: [
-        RequestBoardSection(title: "Accepted by me"),
-        RequestBoardSection(title: "Requested by me"),
-        RequestBoardSection(title: "Others' requests"),
-      ],
+    return FractionallySizedBox(
+      widthFactor: 0.7,
+      child: CustomScrollView(
+        //spacing: DefaultSpacing.extraLarge,
+        slivers: [
+          RequestBoardSection(title: "Accepted by me", requests: requests.where((request) => request.type == .acceptedByMe).toList()),
+          RequestBoardSection(title: "Requested by me", requests: requests.where((request) => request.type == .requestedByMe).toList()),
+          RequestBoardSection(title: "Others' requests", requests: requests.where((request) => request.type == .requestedByOther).toList()),
+        ],
+      ),
     );
   }
 }
 
 class RequestBoardSection extends StatelessWidget {
-  const new({super.key, required this.title});
+  const new({super.key, required this.title, required this.requests});
   final String title;
+  final List<DummyRequest> requests; 
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: .start,
-      spacing: DefaultSpacing.small,
-      children: [
-        TitleText(title, size: .medium),
-        Column(
-          spacing: DefaultSpacing.xxs,
-          children: [
-            RequestListTile(
-              title: "Build the helicopter",
-              description: "Just build it.",
-            ),
-            RequestListTile(
-              title: "Build the helicopter",
-              description: "Just build it.",
-            ),
-          ],
-        ),
-      ],
+    
+    return SliverPadding(
+      padding: .only(bottom: DefaultSpacing.extraLarge),
+      sliver: SliverList.separated(
+        // + 1 since we must account for the title as well.
+        itemCount: requests.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) return TitleText(title, size: .medium);
+      
+          final request = requests[index - 1];
+          return RequestListTile(title: request.title, description: request.description);
+        },
+        separatorBuilder: (context, index) {
+          return index == 0 ? const SizedBox(height: DefaultSpacing.small) : const SizedBox(height: DefaultSpacing.xxs);
+        },
+      ),
     );
   }
 }
