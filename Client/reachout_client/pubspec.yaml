@@ -1,5 +1,5 @@
 name: reachout_client
-description: "A new Flutter project."
+description: "A local request service platform."
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -9,7 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  go_router: ^18.0.2
 
+  material_ui: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
