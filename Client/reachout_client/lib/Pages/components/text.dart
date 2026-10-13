@@ -31,11 +31,15 @@ class LabelText extends StatelessWidget {
 }
 
 class BodyText extends StatelessWidget {
-  const BodyText(this.text, {super.key});
+  const new(this.text, {super.key, required this.size});
   final String text;
+  final TextSize size;
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: Theme.of(context).textTheme.bodyMedium);
+    final textTheme = Theme.of(context).textTheme;
+    final styles = [textTheme.bodySmall, textTheme.bodyMedium, textTheme.bodyLarge]; 
+
+    return Text(text, style: styles[size.index]);
   }
 }

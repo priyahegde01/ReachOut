@@ -4,6 +4,7 @@ class DefaultSpacing {
   DefaultSpacing._(); // Prevents instantiation
 
   static const double none = 0.0;
+  static const double xxs = 2.0;
   static const double xs = 4.0;
   static const double small = 8.0;
   static const double medium = 16.0;

@@ -30,6 +30,10 @@ class MainPageStructure extends StatelessWidget {
           ),
         ),
         Align(alignment: .bottomCenter, child: MainPageStatusBar()),
+        Padding(
+          padding: const EdgeInsets.only(top: DefaultSpacing.medium),
+          child: Center(child: RequestBoard()),
+        ),
       ],
     );
   }
@@ -46,24 +50,20 @@ class MainPageStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
 
-    return SizedBox(
+    return Container(
       height: 48,
-      child: Container(
-        color: colorTheme.surfaceContainer,
-        child: Row(
-          spacing: DefaultSpacing.large,
-          children: [
-            TextButton(
-              onPressed: () {},
-              child: StatusIndicator(
-                label: "Light Mode",
-                icon: Icons.light_mode,
-              ),
-            ),
-            StatusIndicator(label: "connected", icon: Icons.wifi),
-            LabelText("64 points earned", size: .large)
-          ],
-        ),
+      color: colorTheme.surfaceContainer,
+      padding: .symmetric(horizontal: DefaultSpacing.medium),
+      child: Row(
+        spacing: DefaultSpacing.large,
+        children: [
+          TextButton(
+            onPressed: () {},
+            child: StatusIndicator(label: "Light Mode", icon: Icons.light_mode),
+          ),
+          StatusIndicator(label: "connected", icon: Icons.wifi),
+          LabelText("64 points earned", size: .large),
+        ],
       ),
     );
   }
@@ -94,6 +94,71 @@ class RequestBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Column(
+      spacing: DefaultSpacing.extraLarge,
+      children: [
+        RequestBoardSection(title: "Accepted by me"),
+        RequestBoardSection(title: "Requested by me"),
+        RequestBoardSection(title: "Others' requests"),
+      ],
+    );
+  }
+}
+
+class RequestBoardSection extends StatelessWidget {
+  const new({super.key, required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: .start,
+      spacing: DefaultSpacing.small,
+      children: [
+        TitleText(title, size: .medium),
+        Column(
+          spacing: DefaultSpacing.xxs,
+          children: [
+            RequestListTile(
+              title: "Build the helicopter",
+              description: "Just build it.",
+            ),
+            RequestListTile(
+              title: "Build the helicopter",
+              description: "Just build it.",
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class RequestListTile extends StatelessWidget {
+  const new({super.key, required this.title, required this.description});
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorTheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: 1260,
+      height: 60,
+      decoration: BoxDecoration(
+        // TODO: change color
+        color: colorTheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: .symmetric(vertical: 10, horizontal: 16),
+      child: Row(
+        mainAxisAlignment: .spaceBetween,
+        children: [
+          BodyText(title, size: .large),
+          IconWithDefaults(Icons.keyboard_arrow_down),
+        ],
+      ),
+    );
   }
 }
