@@ -2,18 +2,21 @@ import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
 
-enum RequestType {
-  acceptedByMe,
-  requestedByMe,
-  requestedByOther
-}
+enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
+
+enum RequestStatus { none, pending, accepted }
 
 class DummyRequest {
-  const new({required this.title, required this.description, required this.type, this.accepted = false});
+  const new({
+    required this.title,
+    required this.description,
+    required this.type,
+    this.status = .none,
+  });
   final String title;
   final String description;
   final RequestType type;
-  final bool accepted;
+  final RequestStatus status;
 }
 
 class MainPage extends StatelessWidget {
@@ -89,19 +92,18 @@ class MainPageStatusBar extends StatelessWidget {
 }
 
 class StatusIndicator extends StatelessWidget {
-  const new({super.key, required this.label, required this.icon});
+  const new({super.key, required this.label, required this.icon, this.color});
   final String label;
   final IconData icon;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final colorTheme = Theme.of(context).colorScheme;
-
     return Row(
       spacing: DefaultSpacing.small,
       children: [
-        IconWithDefaults(icon, filled: true, color: colorTheme.onSurface),
-        LabelText(label, size: .large),
+        IconWithDefaults(icon, filled: true, color: color),
+        LabelText(label, size: .large, color: color),
       ],
     );
   }
@@ -112,27 +114,119 @@ class RequestBoard extends StatelessWidget {
   new({super.key});
   // TODO: remove this and provide it through a bloc or cubit.
   final List<DummyRequest> requests = [
-    DummyRequest(title: "Burga", description: "This a burga", type: .acceptedByMe),
-    DummyRequest(title: "Burga", description: "This a burga", type: .requestedByMe),
-    DummyRequest(title: "Burga", description: "This a burga", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-    DummyRequest(title: "Cheese", description: "The moon is made out of it.", type: .requestedByOther),
-
+    DummyRequest(
+      title: "Burga",
+      description: "This a burga",
+      type: .acceptedByMe,
+    ),
+    DummyRequest(
+      title: "Burga",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent semper ipsum a ex vestibulum, sed rutrum sem euismod. Sed molestie elit lorem, vel facilisis magna vulputate in. Integer pharetra tempor quam, vitae viverra mauris rutrum nec. Aliquam quis molestie diam, eu fringilla orci. Quisque ut ante nec justo elementum posuere ut a eros. Aliquam cursus lorem ut purus condimentum, eu lobortis lacus pellentesque. Vestibulum rhoncus enim maximus velit ullamcorper semper.",
+      type: .requestedByMe,
+      status: .accepted,
+    ),
+    DummyRequest(
+      title: "Burga",
+      description: "This a burga",
+      type: .requestedByMe,
+      status: .pending,
+    ),
+    DummyRequest(
+      title: "Burga",
+      description: "This a burga",
+      type: .requestedByMe,
+      status: .pending,
+    ),
+    DummyRequest(
+      title: "Burga",
+      description: "This a burga",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
+    DummyRequest(
+      title: "Cheese",
+      description: "The moon is made out of it.",
+      type: .requestedByOther,
+    ),
   ];
 
   @override
@@ -142,9 +236,24 @@ class RequestBoard extends StatelessWidget {
       child: CustomScrollView(
         //spacing: DefaultSpacing.extraLarge,
         slivers: [
-          RequestBoardSection(title: "Accepted by me", requests: requests.where((request) => request.type == .acceptedByMe).toList()),
-          RequestBoardSection(title: "Requested by me", requests: requests.where((request) => request.type == .requestedByMe).toList()),
-          RequestBoardSection(title: "Others' requests", requests: requests.where((request) => request.type == .requestedByOther).toList()),
+          RequestBoardSection(
+            title: "Accepted by me",
+            requests: requests
+                .where((request) => request.type == .acceptedByMe)
+                .toList(),
+          ),
+          RequestBoardSection(
+            title: "Requested by me",
+            requests: requests
+                .where((request) => request.type == .requestedByMe)
+                .toList(),
+          ),
+          RequestBoardSection(
+            title: "Others' requests",
+            requests: requests
+                .where((request) => request.type == .requestedByOther)
+                .toList(),
+          ),
         ],
       ),
     );
@@ -154,11 +263,10 @@ class RequestBoard extends StatelessWidget {
 class RequestBoardSection extends StatelessWidget {
   const new({super.key, required this.title, required this.requests});
   final String title;
-  final List<DummyRequest> requests; 
+  final List<DummyRequest> requests;
 
   @override
   Widget build(BuildContext context) {
-    
     return SliverPadding(
       padding: .only(bottom: DefaultSpacing.extraLarge),
       sliver: SliverList.separated(
@@ -166,12 +274,22 @@ class RequestBoardSection extends StatelessWidget {
         itemCount: requests.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) return TitleText(title, size: .medium);
-      
+
           final request = requests[index - 1];
-          return RequestListTile(title: request.title, description: request.description);
+          return RequestListTile(
+            title: request.title,
+            description: request.description,
+            type: request.type,
+            status: request.status,
+            expanded: index == 1 || index == 2,
+            onPrimaryActionTap: () {},
+            onSecondaryActionTap: () {},
+          );
         },
         separatorBuilder: (context, index) {
-          return index == 0 ? const SizedBox(height: DefaultSpacing.small) : const SizedBox(height: DefaultSpacing.xxs);
+          return index == 0
+              ? const SizedBox(height: DefaultSpacing.small)
+              : const SizedBox(height: DefaultSpacing.xxs);
         },
       ),
     );
@@ -179,30 +297,206 @@ class RequestBoardSection extends StatelessWidget {
 }
 
 // TODO: make this expandable, maybe add some fancy animations. Add buttons relevant for each request type shown as well.
-class RequestListTile extends StatelessWidget {
-  const new({super.key, required this.title, required this.description});
+class RequestListTile extends StatefulWidget {
+  const new({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.type,
+    this.status = .none,
+    this.expanded = false,
+    this.time,
+    required this.onPrimaryActionTap,
+    this.onSecondaryActionTap,
+  });
   final String title;
   final String description;
+  final RequestType type;
+  final RequestStatus status;
+  final bool expanded;
+  final Duration? time;
+  final VoidCallback onPrimaryActionTap;
+  final VoidCallback? onSecondaryActionTap;
+
+  @override
+  State<RequestListTile> createState() => _RequestListTileState();
+}
+
+class _RequestListTileState extends State<RequestListTile> {
+  bool expanded = false;
+  bool hoveredOver = false;
 
   @override
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
 
-    return Container(
-      width: 1260,
-      height: 60,
-      decoration: BoxDecoration(
-        // TODO: change color
-        color: colorTheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      padding: .symmetric(vertical: 10, horizontal: 16),
-      child: Row(
-        mainAxisAlignment: .spaceBetween,
-        children: [
-          BodyText(title, size: .large),
-          IconWithDefaults(Icons.keyboard_arrow_down),
+    final primaryLabel = [
+      "Show location",
+      widget.status == .accepted ? "Mark complete" : "Cancel",
+      "Take request",
+    ][widget.type.index];
+
+    final secondaryLabel = [
+      "Cancel",
+      widget.status == .accepted ? "Cancel" : null,
+      null,
+    ][widget.type.index];
+
+    final actionButtons = Row(
+      spacing: DefaultSpacing.xs,
+      children: [
+        if (secondaryLabel != null) ...[
+          // TODO: change to an OutlinedButton.icon with a custom style to make the border the color onSurfaceVariant.
+          FilledButton.tonalIcon(
+            onPressed: widget.onSecondaryActionTap,
+            label: LabelText(secondaryLabel, size: .large),
+            icon: Icon(Icons.cancel_outlined),
+          ),
         ],
+        Padding(
+          padding: const .symmetric(vertical: DefaultSpacing.xxs),
+          child: FilledButton.icon(
+            onPressed: widget.onSecondaryActionTap,
+            label: LabelText(
+              primaryLabel,
+              size: .large,
+              color: colorTheme.onPrimary,
+            ),
+            icon: Icon(Icons.location_on_outlined),
+          ),
+        ),
+      ],
+    );
+
+    final acceptanceIndicators = widget.status == .accepted
+        ? StatusIndicator(
+            label: "Accepted",
+            icon: Icons.done_outline,
+            color: colorTheme.primary,
+          )
+        : Row(
+            spacing: DefaultSpacing.medium,
+            children: [
+              // TODO: provide the actual duration it expires in.
+              StatusIndicator(
+                label: "Pending",
+                icon: Icons.pending_outlined,
+                color: colorTheme.primary,
+              ),
+              StatusIndicator(
+                label: "Expires in 04:32",
+                icon: Icons.info_outline,
+                color: colorTheme.onSurfaceVariant,
+              ),
+            ],
+          );
+
+    final expandedContent = widget.status == .none
+        ? Row(
+            spacing: DefaultSpacing.large,
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: .centerStart,
+                  child: BodyText(widget.description, size: .large),
+                ),
+              ),
+              actionButtons,
+            ],
+          )
+        : Column(
+            spacing: DefaultSpacing.medium,
+            children: [
+              Align(
+                alignment: .centerStart,
+                child: BodyText(widget.description, size: .large),
+              ),
+              Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [acceptanceIndicators, actionButtons],
+              ),
+            ],
+          );
+
+    final statusIndicator = widget.status == .accepted
+        ? StatusIndicator(
+            label: "Accepted",
+            icon: Icons.done_outline,
+            color: colorTheme.primary,
+          )
+        : StatusIndicator(
+            label: "Pending",
+            icon: Icons.pending_outlined,
+            color: colorTheme.primary,
+          );
+
+    final nonExpandedcontent = Row(
+      mainAxisAlignment: .spaceBetween,
+      spacing: 12,
+      children: [
+        Expanded(
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              !expanded
+                  ? BodyText(widget.title, size: .large)
+                  : TitleText(widget.title, size: .medium),
+                Row(
+                  spacing: DefaultSpacing.medium,
+                  children: [
+                    if (hoveredOver && !expanded) actionButtons,
+                    if (widget.status != .none && !expanded) statusIndicator,
+                  ],
+                ),
+              ],
+          ),
+        ),
+        SizedBox(
+          height: 40,
+          child: expanded
+              ? IconWithDefaults(Icons.keyboard_arrow_up)
+              : IconWithDefaults(Icons.keyboard_arrow_down),
+        ),
+      ],
+    );
+
+    final content = Column(
+      children: [
+        nonExpandedcontent,
+        if (expanded) ...[expandedContent],
+      ],
+    );
+
+    return Tooltip(
+      message: expanded ? "Show less" : "Show more",
+      waitDuration: Durations.long2,
+      showDuration: Durations.extralong4,
+      child: MouseRegion(
+        onEnter: (event) => setState(() {
+          hoveredOver = true;
+        }),
+        onExit: (event) => setState(() {
+          hoveredOver = false;
+        }),
+        child: GestureDetector(
+          onTap: () => setState(() {
+            expanded = !expanded;
+          }),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 60),
+            child: Container(
+              decoration: BoxDecoration(
+                color: hoveredOver
+                    ? colorTheme.surfaceContainer
+                    : colorTheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: .symmetric(vertical: 10, horizontal: 16),
+              child: content,
+            ),
+          ),
+        ),
       ),
     );
   }
