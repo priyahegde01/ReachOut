@@ -1,6 +1,9 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
+import 'package:reachout_client/state/models/preferences.dart';
+import 'package:reachout_client/state/prefences_state.dart';
 
 enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
 
@@ -72,21 +75,49 @@ class MainPageStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
 
+    final content = BlocBuilder<PreferencesCubit, PreferencesState>(
+      builder: (context, state) {
+        return switch (state) {
+          PreferencesLoadSuccess() => Row(
+            spacing: DefaultSpacing.large,
+            children: [
+              TextButton(
+                onPressed: () {
+                  context.read<PreferencesCubit>().switchThemeMode();
+                },
+                child: StatusIndicator(
+                  label: ["System default", "Light", "Dark"][state.themeMode.index],
+                  icon: [Icons.brightness_auto, Icons.light_mode, Icons.dark_mode][state.themeMode.index]
+                ),
+              ),
+              StatusIndicator(label: "connected", icon: Icons.wifi),
+              LabelText("64 points earned", size: .large),
+            ],
+          ),
+          PreferencesLoadingInProgress() => Row(
+            spacing: DefaultSpacing.large,
+            children: [
+              CircularProgressIndicator(),
+              LabelText("Loading preferences", size: .large),
+            ],
+          ),
+          PreferencesLoadFailure() => Row(
+            spacing: DefaultSpacing.large,
+            children: [
+              Icon(Icons.error_outline, color: colorTheme.error),
+              LabelText("Failed to load preferences", size: .large),
+            ],
+          ),
+          PreferencesInitial() => SizedBox.shrink(),
+        };
+      },
+    );
+
     return Container(
       height: 48,
       color: colorTheme.surfaceContainer,
       padding: .symmetric(horizontal: DefaultSpacing.medium),
-      child: Row(
-        spacing: DefaultSpacing.large,
-        children: [
-          TextButton(
-            onPressed: () {},
-            child: StatusIndicator(label: "Light Mode", icon: Icons.light_mode),
-          ),
-          StatusIndicator(label: "connected", icon: Icons.wifi),
-          LabelText("64 points earned", size: .large),
-        ],
-      ),
+      child: content,
     );
   }
 }
