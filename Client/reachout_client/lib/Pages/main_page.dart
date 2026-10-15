@@ -91,24 +91,6 @@ class MainPageStatusBar extends StatelessWidget {
   }
 }
 
-class StatusIndicator extends StatelessWidget {
-  const new({super.key, required this.label, required this.icon, this.color});
-  final String label;
-  final IconData icon;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      spacing: DefaultSpacing.small,
-      children: [
-        IconWithDefaults(icon, filled: true, color: color),
-        LabelText(label, size: .large, color: color),
-      ],
-    );
-  }
-}
-
 /// Contains the accepted, requested, and requested by others lists.
 class RequestBoard extends StatelessWidget {
   new({super.key});
@@ -260,6 +242,7 @@ class RequestBoard extends StatelessWidget {
   }
 }
 
+/// A section of the request board that contains a title and a list of requests.
 class RequestBoardSection extends StatelessWidget {
   const new({super.key, required this.title, required this.requests});
   final String title;
@@ -296,7 +279,10 @@ class RequestBoardSection extends StatelessWidget {
   }
 }
 
-// TODO: make this expandable, maybe add some fancy animations. Add buttons relevant for each request type shown as well.
+/// A list tile that represents a request.
+///
+/// The list tile can be expanded to show more information about the request, such as its description and status.
+/// It can also be hovered over to show action buttons, such as "Show location" or "Cancel" (this is also shown in the expanded view).
 class RequestListTile extends StatefulWidget {
   const new({
     super.key,
@@ -380,11 +366,12 @@ class _RequestListTileState extends State<RequestListTile> {
                 icon: Icons.pending_outlined,
                 color: colorTheme.primary,
               ),
-              if (hoveredOver || expanded) StatusIndicator(
-                label: "Expires in 04:32",
-                icon: Icons.info_outline,
-                color: colorTheme.onSurfaceVariant,
-              ),
+              if (hoveredOver || expanded)
+                StatusIndicator(
+                  label: "Expires in 04:32",
+                  icon: Icons.info_outline,
+                  color: colorTheme.onSurfaceVariant,
+                ),
             ],
           );
 
