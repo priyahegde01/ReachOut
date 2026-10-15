@@ -468,33 +468,28 @@ class _RequestListTileState extends State<RequestListTile> {
       ],
     );
 
-    return Tooltip(
-      message: expanded ? "Show less" : "Show more",
-      waitDuration: Durations.long2,
-      showDuration: Durations.extralong4,
-      child: MouseRegion(
-        onEnter: (event) => setState(() {
-          hoveredOver = true;
+    return MouseRegion(
+      onEnter: (event) => setState(() {
+        hoveredOver = true;
+      }),
+      onExit: (event) => setState(() {
+        hoveredOver = false;
+      }),
+      child: GestureDetector(
+        onTap: () => setState(() {
+          expanded = !expanded;
         }),
-        onExit: (event) => setState(() {
-          hoveredOver = false;
-        }),
-        child: GestureDetector(
-          onTap: () => setState(() {
-            expanded = !expanded;
-          }),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: 60),
-            child: Container(
-              decoration: BoxDecoration(
-                color: hoveredOver
-                    ? colorTheme.surfaceContainer
-                    : colorTheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: .symmetric(vertical: 10, horizontal: 16),
-              child: content,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 60),
+          child: Container(
+            decoration: BoxDecoration(
+              color: hoveredOver
+                  ? colorTheme.surfaceContainer
+                  : colorTheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10),
             ),
+            padding: .symmetric(vertical: 10, horizontal: 16),
+            child: content,
           ),
         ),
       ),
