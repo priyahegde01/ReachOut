@@ -343,7 +343,7 @@ class _RequestListTileState extends State<RequestListTile> {
     ][widget.type.index];
 
     final actionButtons = Row(
-      spacing: DefaultSpacing.xs,
+      spacing: DefaultSpacing.small,
       children: [
         if (secondaryLabel != null) ...[
           // TODO: change to an OutlinedButton.icon with a custom style to make the border the color onSurfaceVariant.
@@ -353,17 +353,14 @@ class _RequestListTileState extends State<RequestListTile> {
             icon: Icon(Icons.cancel_outlined),
           ),
         ],
-        Padding(
-          padding: const .symmetric(vertical: DefaultSpacing.xxs),
-          child: FilledButton.icon(
-            onPressed: widget.onSecondaryActionTap,
-            label: LabelText(
-              primaryLabel,
-              size: .large,
-              color: colorTheme.onPrimary,
-            ),
-            icon: Icon(Icons.location_on_outlined),
+        FilledButton.icon(
+          onPressed: widget.onSecondaryActionTap,
+          label: LabelText(
+            primaryLabel,
+            size: .large,
+            color: colorTheme.onPrimary,
           ),
+          icon: Icon(Icons.location_on_outlined),
         ),
       ],
     );
@@ -383,7 +380,7 @@ class _RequestListTileState extends State<RequestListTile> {
                 icon: Icons.pending_outlined,
                 color: colorTheme.primary,
               ),
-              StatusIndicator(
+              if (hoveredOver || expanded) StatusIndicator(
                 label: "Expires in 04:32",
                 icon: Icons.info_outline,
                 color: colorTheme.onSurfaceVariant,
@@ -392,18 +389,9 @@ class _RequestListTileState extends State<RequestListTile> {
           );
 
     final expandedContent = widget.status == .none
-        ? Row(
-            spacing: DefaultSpacing.large,
-            mainAxisAlignment: .spaceBetween,
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: .centerStart,
-                  child: BodyText(widget.description, size: .large),
-                ),
-              ),
-              actionButtons,
-            ],
+        ? Align(
+            alignment: .centerStart,
+            child: BodyText(widget.description, size: .large),
           )
         : Column(
             spacing: DefaultSpacing.medium,
@@ -412,51 +400,34 @@ class _RequestListTileState extends State<RequestListTile> {
                 alignment: .centerStart,
                 child: BodyText(widget.description, size: .large),
               ),
-              Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [acceptanceIndicators, actionButtons],
-              ),
+              acceptanceIndicators,
             ],
-          );
-
-    final statusIndicator = widget.status == .accepted
-        ? StatusIndicator(
-            label: "Accepted",
-            icon: Icons.done_outline,
-            color: colorTheme.primary,
-          )
-        : StatusIndicator(
-            label: "Pending",
-            icon: Icons.pending_outlined,
-            color: colorTheme.primary,
           );
 
     final nonExpandedcontent = Row(
       mainAxisAlignment: .spaceBetween,
       spacing: 12,
       children: [
-        Expanded(
-          child: Row(
-            mainAxisAlignment: .spaceBetween,
-            children: [
-              !expanded
-                  ? BodyText(widget.title, size: .large)
-                  : TitleText(widget.title, size: .medium),
-                Row(
-                  spacing: DefaultSpacing.medium,
-                  children: [
-                    if (hoveredOver && !expanded) actionButtons,
-                    if (widget.status != .none && !expanded) statusIndicator,
-                  ],
-                ),
-              ],
-          ),
+        Row(
+          spacing: DefaultSpacing.large,
+          children: [
+            !expanded
+                ? BodyText(widget.title, size: .large)
+                : TitleText(widget.title, size: .medium),
+            if (widget.status != .none && !expanded) acceptanceIndicators,
+          ],
         ),
-        SizedBox(
-          height: 40,
-          child: expanded
-              ? IconWithDefaults(Icons.keyboard_arrow_up)
-              : IconWithDefaults(Icons.keyboard_arrow_down),
+        Row(
+          spacing: DefaultSpacing.medium,
+          children: [
+            if (hoveredOver || expanded) actionButtons,
+            SizedBox(
+              height: 40,
+              child: expanded
+                  ? IconWithDefaults(Icons.keyboard_arrow_up)
+                  : IconWithDefaults(Icons.keyboard_arrow_down),
+            ),
+          ],
         ),
       ],
     );
