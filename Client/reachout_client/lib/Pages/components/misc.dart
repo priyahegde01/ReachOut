@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/text.dart';
-
 
 class DefaultSpacing {
   DefaultSpacing._(); // Prevents instantiation
@@ -17,14 +18,25 @@ class DefaultSpacing {
 
 /// An Icon widget with default weight and optical size.
 class IconWithDefaults extends StatelessWidget {
-  const IconWithDefaults(this.icon, {super.key, this.filled = false, this.color});
+  const IconWithDefaults(
+    this.icon, {
+    super.key,
+    this.filled = false,
+    this.color,
+  });
   final IconData? icon;
   final bool filled;
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    return Icon(icon, weight: 400, opticalSize: 24, fill: filled ? 1.0 : 0.0, color: color ?? Theme.of(context).colorScheme.onSurface);
+    return Icon(
+      icon,
+      weight: 400,
+      opticalSize: 24,
+      fill: filled ? 1.0 : 0.0,
+      color: color ?? Theme.of(context).colorScheme.onSurface,
+    );
   }
 }
 
@@ -43,5 +55,79 @@ class StatusIndicator extends StatelessWidget {
         LabelText(label, size: .large, color: color),
       ],
     );
+  }
+}
+
+class ExpireIndicator extends StatefulWidget {
+  const new({
+    super.key,
+    required this.startTime,
+    required this.stopTime,
+    required this.onTimeOut,
+  });
+  final DateTime startTime;
+  final DateTime stopTime;
+  final VoidCallback onTimeOut;
+
+  @override
+  State<ExpireIndicator> createState() => _ExpireIndicatorState();
+}
+
+class _ExpireIndicatorState extends State<ExpireIndicator> {
+  late final Duration _timeLeft;
+  late final Timer _timer;
+
+  @override
+  void initState() {
+    _timeLeft = widget.stopTime.difference(widget.startTime);
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_timeLeft.inSeconds > 0) {
+        _timeLeft -= const Duration(seconds: 1);
+      } else {
+        _timer.cancel();
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final time = formatTimestamp(_timeLeft);
+    final label = "Expires in $time";
+    final icon = Icons.info_outline;
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return Row(
+      spacing: DefaultSpacing.small,
+      children: [
+        IconWithDefaults(icon, filled: true, color: color),
+        LabelText(label, size: .large, color: color),
+      ],
+    );
+  }
+
+  String formatTimestamp(Duration time) {
+    final hours = time.inHours;
+    final minutes = time.inMinutes % 60;
+    final seconds = time.inSeconds % 60;
+
+    final hoursText = getTimeStampPart(hours);
+    final minutesText = getTimeStampPart(minutes);
+    final secondsText = getTimeStampPart(seconds);
+
+    if (hours > 0) {
+      return "$hoursText:$secondsText:$minutesText";
+    }
+    return "$minutesText:$secondsText";
+  }
+
+  String getTimeStampPart(int value) {
+    return value < 10 ? "0$value" : "$value";
   }
 }

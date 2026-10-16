@@ -2,17 +2,23 @@ enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
 
 enum RequestStatus { none, pending, accepted }
 
-class DummyRequest {
-  const new({
+class Request {
+  new({
     required this.title,
     required this.description,
     required this.type,
     this.status = .none,
-  });
+    this.timeToLive = const Duration(seconds: 10)
+  }) {
+    created = DateTime.now();
+  }
+
   final String title;
   final String description;
   final RequestType type;
   final RequestStatus status;
+  late final DateTime created;
+  final Duration timeToLive;
 }
 
 sealed class RequestBoardState {
@@ -36,9 +42,9 @@ final class RequestBoardLoadSuccess extends RequestBoardState {
 
   // "Me" refers to the user running this client, while "Others" refers
   // to other users of the service.
-  final List<DummyRequest> accepted;
-  final List<DummyRequest> requestedByMe;
-  final List<DummyRequest> requestedByOthers;
+  final List<Request> accepted;
+  final List<Request> requestedByMe;
+  final List<Request> requestedByOthers;
 }
 
 final class RequestBoardLoadFailure extends RequestBoardState {

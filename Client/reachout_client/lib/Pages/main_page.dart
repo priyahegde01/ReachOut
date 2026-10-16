@@ -172,7 +172,7 @@ class RequestBoard extends StatelessWidget {
 class RequestBoardSection extends StatelessWidget {
   const new({super.key, required this.title, required this.requests});
   final String title;
-  final List<DummyRequest> requests;
+  final List<Request> requests;
 
   @override
   Widget build(BuildContext context) {
@@ -212,21 +212,13 @@ class RequestBoardSection extends StatelessWidget {
 class RequestListTile extends StatefulWidget {
   const new({
     super.key,
-    required this.title,
-    required this.description,
-    required this.type,
-    this.status = .none,
+    required this.request,
     this.expanded = false,
-    this.time,
     required this.onPrimaryActionTap,
     this.onSecondaryActionTap,
   });
-  final String title;
-  final String description;
-  final RequestType type;
-  final RequestStatus status;
+  final Request request;
   final bool expanded;
-  final Duration? time;
   final VoidCallback onPrimaryActionTap;
   final VoidCallback? onSecondaryActionTap;
 
@@ -293,11 +285,7 @@ class _RequestListTileState extends State<RequestListTile> {
                 color: colorTheme.primary,
               ),
               if (hoveredOver || expanded)
-                StatusIndicator(
-                  label: "Expires in 04:32",
-                  icon: Icons.info_outline,
-                  color: colorTheme.onSurfaceVariant,
-                ),
+                ExpireIndicator(startTime: , stopTime: stopTime, onTimeOut: onTimeOut)
             ],
           );
 
