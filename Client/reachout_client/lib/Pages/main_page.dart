@@ -36,8 +36,8 @@ class MainPageStructure extends StatelessWidget {
         ),
         Positioned(
           // These are arbitrarily chosen coordinates.
-          right: 80,
-          bottom: 100,
+          right: 32,
+          bottom: 96,
           child: FloatingActionButton.extended(
             onPressed: () {},
             label: TitleText("Request Help", size: .medium),
