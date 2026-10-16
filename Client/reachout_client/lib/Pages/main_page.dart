@@ -3,24 +3,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
 import 'package:reachout_client/state/models/preferences.dart';
+import 'package:reachout_client/state/models/request_board.dart';
 import 'package:reachout_client/state/prefences_state.dart';
-
-enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
-
-enum RequestStatus { none, pending, accepted }
-
-class DummyRequest {
-  const new({
-    required this.title,
-    required this.description,
-    required this.type,
-    this.status = .none,
-  });
-  final String title;
-  final String description;
-  final RequestType type;
-  final RequestStatus status;
-}
+import 'package:reachout_client/state/request_board_state.dart';
 
 class MainPage extends StatelessWidget {
   const new({super.key});
@@ -86,8 +71,16 @@ class MainPageStatusBar extends StatelessWidget {
                   context.read<PreferencesCubit>().switchThemeMode();
                 },
                 child: StatusIndicator(
-                  label: ["System default", "Light", "Dark"][state.themeMode.index],
-                  icon: [Icons.brightness_auto, Icons.light_mode, Icons.dark_mode][state.themeMode.index]
+                  label: [
+                    "System default",
+                    "Light",
+                    "Dark",
+                  ][state.themeMode.index],
+                  icon: [
+                    Icons.brightness_auto,
+                    Icons.light_mode,
+                    Icons.dark_mode,
+                  ][state.themeMode.index],
                 ),
               ),
               StatusIndicator(label: "connected", icon: Icons.wifi),
@@ -124,151 +117,53 @@ class MainPageStatusBar extends StatelessWidget {
 
 /// Contains the accepted, requested, and requested by others lists.
 class RequestBoard extends StatelessWidget {
-  new({super.key});
-  // TODO: remove this and provide it through a bloc or cubit.
-  final List<DummyRequest> requests = [
-    DummyRequest(
-      title: "Burga",
-      description: "This a burga",
-      type: .acceptedByMe,
-    ),
-    DummyRequest(
-      title: "Burga",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent semper ipsum a ex vestibulum, sed rutrum sem euismod. Sed molestie elit lorem, vel facilisis magna vulputate in. Integer pharetra tempor quam, vitae viverra mauris rutrum nec. Aliquam quis molestie diam, eu fringilla orci. Quisque ut ante nec justo elementum posuere ut a eros. Aliquam cursus lorem ut purus condimentum, eu lobortis lacus pellentesque. Vestibulum rhoncus enim maximus velit ullamcorper semper.",
-      type: .requestedByMe,
-      status: .accepted,
-    ),
-    DummyRequest(
-      title: "Burga",
-      description: "This a burga",
-      type: .requestedByMe,
-      status: .pending,
-    ),
-    DummyRequest(
-      title: "Burga",
-      description: "This a burga",
-      type: .requestedByMe,
-      status: .pending,
-    ),
-    DummyRequest(
-      title: "Burga",
-      description: "This a burga",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    DummyRequest(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-  ];
-
+  const new({super.key});
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: 0.7,
-      child: CustomScrollView(
-        //spacing: DefaultSpacing.extraLarge,
-        slivers: [
-          RequestBoardSection(
-            title: "Accepted by me",
-            requests: requests
-                .where((request) => request.type == .acceptedByMe)
-                .toList(),
+    return BlocBuilder<RequestBoardCubit, RequestBoardState>(
+      builder: (context, state) {
+        return switch (state) {
+          RequestBoardLoadSuccess() => FractionallySizedBox(
+            widthFactor: 0.7,
+            child: CustomScrollView(
+              //spacing: DefaultSpacing.extraLarge,
+              slivers: [
+                RequestBoardSection(
+                  title: "Accepted by me",
+                  requests: state.accepted,
+                ),
+                RequestBoardSection(
+                  title: "Requested by me",
+                  requests: state.requestedByMe,
+                ),
+                RequestBoardSection(
+                  title: "Others' requests",
+                  requests: state.requestedByOthers
+                      .where((request) => request.type == .requestedByOther)
+                      .toList(),
+                ),
+              ],
+            ),
           ),
-          RequestBoardSection(
-            title: "Requested by me",
-            requests: requests
-                .where((request) => request.type == .requestedByMe)
-                .toList(),
+          RequestBoardEmpty() => Center(
+            child: DisplayText("The request board is empty.", size: .large),
           ),
-          RequestBoardSection(
-            title: "Others' requests",
-            requests: requests
-                .where((request) => request.type == .requestedByOther)
-                .toList(),
+          RequestBoardLoading() => Center(
+            child: Row(
+              mainAxisAlignment: .center,
+              spacing: DefaultSpacing.extraLarge,
+              children: [
+                CircularProgressIndicator(),
+                DisplayText("Loading Requests", size: .large),
+              ],
+            ),
           ),
-        ],
-      ),
+          RequestBoardLoadFailure() => Center(
+            // TODO: add text that prints the exception.
+            child: DisplayText("Failed to load Requests.", size: .large),
+          ),
+        };
+      },
     );
   }
 }

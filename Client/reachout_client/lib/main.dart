@@ -4,15 +4,19 @@ import 'package:reachout_client/routes.dart';
 import 'package:reachout_client/state/models/preferences.dart';
 import 'package:reachout_client/state/prefences_state.dart';
 import 'package:reachout_client/state/repositories/preference_repository.dart';
+import 'package:reachout_client/state/request_board_state.dart';
 
 void main() {
   final preferences = PreferencesRepository();
-  WidgetsFlutterBinding.ensureInitialized();
   final preferencesCubit = PreferencesCubit(preferences);
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
     MultiBlocProvider(
-      providers: [BlocProvider.value(value: preferencesCubit)],
+      providers: [
+        BlocProvider.value(value: preferencesCubit),
+        BlocProvider(create:(context) => RequestBoardCubit())
+      ],
       child: const MainApp(),
     ),
   );

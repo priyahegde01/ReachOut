@@ -5,16 +5,16 @@ sealed class PreferencesState {
 }
 
 final class PreferencesInitial extends PreferencesState {
-  const PreferencesInitial();
+  const new();
 }
 
 final class PreferencesLoadingInProgress extends PreferencesState {
-  const PreferencesLoadingInProgress();
+  const new();
 }
 
 /// Stores all user Preferences.
 final class PreferencesLoadSuccess extends PreferencesState {
-  const PreferencesLoadSuccess({required this.userID, required this.themeMode});
+  const new({required this.userID, required this.themeMode});
   
   final int userID;
   final ThemeMode themeMode;
@@ -25,6 +25,6 @@ final class PreferencesLoadSuccess extends PreferencesState {
 }
 
 final class PreferencesLoadFailure extends PreferencesState {
-  const PreferencesLoadFailure({required this.exception});
+  const new({required this.exception});
   final Exception exception;
 }
