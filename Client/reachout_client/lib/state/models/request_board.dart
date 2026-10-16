@@ -11,6 +11,7 @@ class Request {
     this.timeToLive = const Duration(seconds: 10)
   }) {
     created = DateTime.now();
+    expires = created.add(timeToLive);
   }
 
   final String title;
@@ -18,6 +19,7 @@ class Request {
   final RequestType type;
   final RequestStatus status;
   late final DateTime created;
+  late final DateTime expires;
   final Duration timeToLive;
 }
 

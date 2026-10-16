@@ -186,11 +186,8 @@ class RequestBoardSection extends StatelessWidget {
 
           final request = requests[index - 1];
           return RequestListTile(
-            title: request.title,
-            description: request.description,
-            type: request.type,
-            status: request.status,
-            expanded: index == 1 || index == 2,
+            request: request,
+            onExpiry: () {},
             onPrimaryActionTap: () {},
             onSecondaryActionTap: () {},
           );
@@ -213,12 +210,12 @@ class RequestListTile extends StatefulWidget {
   const new({
     super.key,
     required this.request,
-    this.expanded = false,
+    required this.onExpiry,
     required this.onPrimaryActionTap,
     this.onSecondaryActionTap,
   });
   final Request request;
-  final bool expanded;
+  final VoidCallback onExpiry;
   final VoidCallback onPrimaryActionTap;
   final VoidCallback? onSecondaryActionTap;
 
@@ -233,18 +230,19 @@ class _RequestListTileState extends State<RequestListTile> {
   @override
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
+    final request = widget.request;
 
     final primaryLabel = [
       "Show location",
-      widget.status == .accepted ? "Mark complete" : "Cancel",
+      request.status == .accepted ? "Mark complete" : "Cancel",
       "Take request",
-    ][widget.type.index];
+    ][request.type.index];
 
     final secondaryLabel = [
       "Cancel",
-      widget.status == .accepted ? "Cancel" : null,
+      request.status == .accepted ? "Cancel" : null,
       null,
-    ][widget.type.index];
+    ][request.type.index];
 
     final actionButtons = Row(
       spacing: DefaultSpacing.small,
@@ -269,7 +267,7 @@ class _RequestListTileState extends State<RequestListTile> {
       ],
     );
 
-    final acceptanceIndicators = widget.status == .accepted
+    final acceptanceIndicators = request.status == .accepted
         ? StatusIndicator(
             label: "Accepted",
             icon: Icons.done_outline,
@@ -278,28 +276,31 @@ class _RequestListTileState extends State<RequestListTile> {
         : Row(
             spacing: DefaultSpacing.medium,
             children: [
-              // TODO: provide the actual duration it expires in.
               StatusIndicator(
                 label: "Pending",
                 icon: Icons.pending_outlined,
                 color: colorTheme.primary,
               ),
               if (hoveredOver || expanded)
-                ExpireIndicator(startTime: , stopTime: stopTime, onTimeOut: onTimeOut)
+                ExpireIndicator(
+                  startTime: request.created,
+                  stopTime: request.expires,
+                  onTimeOut: widget.onExpiry,
+                ),
             ],
           );
 
-    final expandedContent = widget.status == .none
+    final expandedContent = request.status == .none
         ? Align(
             alignment: .centerStart,
-            child: BodyText(widget.description, size: .large),
+            child: BodyText(request.description, size: .large),
           )
         : Column(
             spacing: DefaultSpacing.medium,
             children: [
               Align(
                 alignment: .centerStart,
-                child: BodyText(widget.description, size: .large),
+                child: BodyText(request.description, size: .large),
               ),
               acceptanceIndicators,
             ],
@@ -313,9 +314,9 @@ class _RequestListTileState extends State<RequestListTile> {
           spacing: DefaultSpacing.large,
           children: [
             !expanded
-                ? BodyText(widget.title, size: .large)
-                : TitleText(widget.title, size: .medium),
-            if (widget.status != .none && !expanded) acceptanceIndicators,
+                ? BodyText(request.title, size: .large)
+                : TitleText(request.title, size: .medium),
+            if (request.status != .none && !expanded) acceptanceIndicators,
           ],
         ),
         Row(

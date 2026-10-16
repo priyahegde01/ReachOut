@@ -74,20 +74,26 @@ class ExpireIndicator extends StatefulWidget {
 }
 
 class _ExpireIndicatorState extends State<ExpireIndicator> {
-  late final Duration _timeLeft;
+  Duration _timeLeft = Duration();
   late final Timer _timer;
 
   @override
   void initState() {
-    _timeLeft = widget.stopTime.difference(widget.startTime);
+    super.initState();
+    _timeLeft = widget.stopTime.isBefore(DateTime.now())
+        ? Duration.zero
+        : widget.stopTime.difference(DateTime.now());
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_timeLeft.inSeconds > 0) {
-        _timeLeft -= const Duration(seconds: 1);
+        setState(() {
+          _timeLeft -= const Duration(seconds: 1);
+        });
       } else {
         _timer.cancel();
+        widget.onTimeOut();
       }
     });
-    super.initState();
   }
 
   @override
@@ -122,7 +128,7 @@ class _ExpireIndicatorState extends State<ExpireIndicator> {
     final secondsText = getTimeStampPart(seconds);
 
     if (hours > 0) {
-      return "$hoursText:$secondsText:$minutesText";
+      return "$hoursText:$minutesText:$secondsText";
     }
     return "$minutesText:$secondsText";
   }
