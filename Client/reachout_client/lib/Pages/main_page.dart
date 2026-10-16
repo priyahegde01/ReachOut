@@ -248,7 +248,6 @@ class _RequestListTileState extends State<RequestListTile> {
       spacing: DefaultSpacing.small,
       children: [
         if (secondaryLabel != null) ...[
-          // TODO: change to an OutlinedButton.icon with a custom style to make the border the color onSurfaceVariant.
           FilledButton.tonalIcon(
             onPressed: widget.onSecondaryActionTap,
             label: LabelText(secondaryLabel, size: .large),
@@ -262,7 +261,6 @@ class _RequestListTileState extends State<RequestListTile> {
             size: .large,
             color: colorTheme.onPrimary,
           ),
-          icon: Icon(Icons.location_on_outlined),
         ),
       ],
     );
@@ -285,7 +283,6 @@ class _RequestListTileState extends State<RequestListTile> {
                 ExpireIndicator(
                   startTime: request.created,
                   stopTime: request.expires,
-                  onTimeOut: widget.onExpiry,
                 ),
             ],
           );

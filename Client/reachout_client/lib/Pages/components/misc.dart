@@ -59,15 +59,9 @@ class StatusIndicator extends StatelessWidget {
 }
 
 class ExpireIndicator extends StatefulWidget {
-  const new({
-    super.key,
-    required this.startTime,
-    required this.stopTime,
-    required this.onTimeOut,
-  });
+  const new({super.key, required this.startTime, required this.stopTime});
   final DateTime startTime;
   final DateTime stopTime;
-  final VoidCallback onTimeOut;
 
   @override
   State<ExpireIndicator> createState() => _ExpireIndicatorState();
@@ -85,13 +79,15 @@ class _ExpireIndicatorState extends State<ExpireIndicator> {
         : widget.stopTime.difference(DateTime.now());
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_timeLeft.inSeconds > 0) {
+      if (_timeLeft.inSeconds > 1) {
         setState(() {
           _timeLeft -= const Duration(seconds: 1);
         });
       } else {
         _timer.cancel();
-        widget.onTimeOut();
+        setState(() {
+          _timeLeft = Duration.zero;
+        });
       }
     });
   }
@@ -104,18 +100,14 @@ class _ExpireIndicatorState extends State<ExpireIndicator> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme; 
     final time = formatTimestamp(_timeLeft);
     final label = "Expires in $time";
-    final icon = Icons.info_outline;
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    final color = colorScheme.onSurfaceVariant;
 
-    return Row(
-      spacing: DefaultSpacing.small,
-      children: [
-        IconWithDefaults(icon, filled: true, color: color),
-        LabelText(label, size: .large, color: color),
-      ],
-    );
+    return _timeLeft == Duration.zero
+        ? LabelText("Expired", size: .large, color: colorScheme.error)
+        : LabelText(label, size: .large, color: color);
   }
 
   String formatTimestamp(Duration time) {
