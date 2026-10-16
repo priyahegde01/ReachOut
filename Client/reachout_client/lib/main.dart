@@ -7,8 +7,8 @@ import 'package:reachout_client/state/repositories/preference_repository.dart';
 
 void main() {
   final preferences = PreferencesRepository();
-  final preferencesCubit = PreferencesCubit(preferences);
   WidgetsFlutterBinding.ensureInitialized();
+  final preferencesCubit = PreferencesCubit(preferences);
 
   runApp(
     MultiBlocProvider(
@@ -33,6 +33,7 @@ class MainApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           themeMode: state is PreferencesLoadSuccess
               ? state.themeMode
+              // In case the themeMode has not been set before, default to system.
               : ThemeMode.system,
           routerConfig: routes,
         );

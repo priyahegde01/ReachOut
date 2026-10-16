@@ -11,7 +11,7 @@ class PreferencesRepository {
   int? _userID;
 
   Future<ThemeMode?> get themeMode async {
-    if (_themeMode != null) {
+    if (_themeMode == null) {
       final themeModeIndex = await _asyncPreferences.getInt(_themeModeKey);
       if (themeModeIndex != null) {
         _themeMode = ThemeMode.values[themeModeIndex];
