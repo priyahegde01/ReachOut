@@ -5,6 +5,7 @@ enum RequestStatus { none, pending, accepted }
 class Request {
   new({
     required this.title,
+    required this.location,
     required this.description,
     required this.type,
     this.status = .none,
@@ -15,6 +16,7 @@ class Request {
   }
 
   final String title;
+  final String location;
   final String description;
   final RequestType type;
   final RequestStatus status;

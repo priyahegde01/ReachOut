@@ -21,4 +21,10 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
       ),
     );
   }
+
+  void sendRequest(String title, String location, String description) {
+    _repository.sendRequest(
+      Request(title: title, location: location, description: description, type: .requestedByMe),
+    );
+  }
 }

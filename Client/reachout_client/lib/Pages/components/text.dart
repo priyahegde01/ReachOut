@@ -69,16 +69,19 @@ class LabelTextPrimary extends StatelessWidget {
 }
 
 class BodyText extends StatelessWidget {
-  const new(this.text, {super.key, required this.size});
+  const new(this.text, {super.key, required this.size, this.color});
   final String text;
   final TextSize size;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final styles = [textTheme.bodySmall, textTheme.bodyMedium, textTheme.bodyLarge]; 
 
-    return Text(text, style: styles[size.index]);
+    return Text(text, style: styles[size.index]!.copyWith(
+      color: color ?? Theme.of(context).colorScheme.onSurface
+    ));
   }
 }
 
@@ -92,6 +95,23 @@ class DisplayText extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final styles = [textTheme.displaySmall, textTheme.displayMedium, textTheme.displayLarge]; 
+
+    return Text(text, style: styles[size.index]!.copyWith(
+      color: color ?? Theme.of(context).colorScheme.onSurface
+    ));
+  }
+}
+
+class HeadlineText extends StatelessWidget {
+  const new(this.text, {super.key, required this.size, this.color});
+  final String text;
+  final TextSize size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final styles = [textTheme.headlineSmall, textTheme.headlineMedium, textTheme.headlineLarge]; 
 
     return Text(text, style: styles[size.index]!.copyWith(
       color: color ?? Theme.of(context).colorScheme.onSurface

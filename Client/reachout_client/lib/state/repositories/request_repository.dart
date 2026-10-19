@@ -7,114 +7,40 @@ class RequestRepository {
   final List<Request> _requests = [
     Request(
       title: "Burga",
+      location: "Burger town",
       description: "This a burga",
       type: .acceptedByMe,
     ),
     Request(
       title: "Burga",
+      location: "Burger town",
       description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent semper ipsum a ex vestibulum, sed rutrum sem euismod. Sed molestie elit lorem, vel facilisis magna vulputate in. Integer pharetra tempor quam, vitae viverra mauris rutrum nec. Aliquam quis molestie diam, eu fringilla orci. Quisque ut ante nec justo elementum posuere ut a eros. Aliquam cursus lorem ut purus condimentum, eu lobortis lacus pellentesque. Vestibulum rhoncus enim maximus velit ullamcorper semper.",
       type: .requestedByMe,
       status: .accepted,
     ),
     Request(
       title: "Burga",
+      location: "Burger town",
       description: "This a burga",
       type: .requestedByMe,
       status: .pending,
     ),
     Request(
       title: "Burga",
+      location: "Burger town",
       description: "This a burga",
       type: .requestedByMe,
       status: .pending,
     ),
     Request(
       title: "Burga",
+      location: "Burger town",
       description: "This a burga",
       type: .requestedByOther,
     ),
     Request(
       title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
-      description: "The moon is made out of it.",
-      type: .requestedByOther,
-    ),
-    Request(
-      title: "Cheese",
+      location: "Burger town",
       description: "The moon is made out of it.",
       type: .requestedByOther,
     ),

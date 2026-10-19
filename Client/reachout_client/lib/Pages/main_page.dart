@@ -4,7 +4,7 @@ import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
 import 'package:reachout_client/state/models/preferences.dart';
 import 'package:reachout_client/state/models/request_board.dart';
-import 'package:reachout_client/state/prefences_state.dart';
+import 'package:reachout_client/state/preferences_state.dart';
 import 'package:reachout_client/state/request_board_state.dart';
 
 class MainPage extends StatelessWidget {
@@ -17,33 +17,65 @@ class MainPage extends StatelessWidget {
 }
 
 /// The overall structure of the main page.
-class MainPageStructure extends StatelessWidget {
+class MainPageStructure extends StatefulWidget {
   const new({super.key});
+
+  @override
+  State<MainPageStructure> createState() => _MainPageStructureState();
+}
+
+class _MainPageStructureState extends State<MainPageStructure> {
+  bool _showRequestCreationDialog = false;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Padding(
-          padding: .directional(top: DefaultSpacing.large),
-          child: Column(
-            spacing: DefaultSpacing.small,
-            children: [
-              Expanded(child: RequestBoard()),
-              Align(alignment: .bottomCenter, child: MainPageStatusBar()),
-            ],
+        IgnorePointer(
+          ignoring: _showRequestCreationDialog,
+          child: Padding(
+            padding: .directional(top: DefaultSpacing.large),
+            child: Column(
+              spacing: DefaultSpacing.small,
+              children: [
+                Expanded(child: RequestBoard()),
+                Align(alignment: .bottomCenter, child: MainPageStatusBar()),
+              ],
+            ),
           ),
         ),
         Positioned(
           // These are arbitrarily chosen coordinates.
           right: 32,
           bottom: 96,
-          child: FloatingActionButton.extended(
-            onPressed: () {},
-            label: TitleText("Request Help", size: .medium),
-            icon: Icon(Icons.add),
+          child: IgnorePointer(
+            ignoring: _showRequestCreationDialog,
+            child: FloatingActionButton.extended(
+              onPressed: () {
+                setState(() {
+                  _showRequestCreationDialog = true;
+                });
+              },
+              label: TitleText("Request Help", size: .medium),
+              icon: Icon(Icons.add),
+            ),
           ),
         ),
+        if (_showRequestCreationDialog)
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: .blur(sigmaX: 8, sigmaY: 8),
+              child: Center(
+                child: NewRequestDialog(
+                  onClose: () => setState(() {
+                    _showRequestCreationDialog = false;
+                  }),
+                  // TODO: implement / implement in widget instead.
+                  onSubmit: () {},
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -159,7 +191,6 @@ class RequestBoard extends StatelessWidget {
             ),
           ),
           RequestBoardLoadFailure() => Center(
-            // TODO: add text that prints the exception.
             child: DisplayText("Failed to load Requests.", size: .large),
           ),
         };
@@ -233,13 +264,13 @@ class _RequestListTileState extends State<RequestListTile> {
     final request = widget.request;
 
     final primaryLabel = [
-      "Show location",
+      "Cancel",
       request.status == .accepted ? "Mark complete" : "Cancel",
       "Take request",
     ][request.type.index];
 
     final secondaryLabel = [
-      "Cancel",
+      null,
       request.status == .accepted ? "Cancel" : null,
       null,
     ][request.type.index];
@@ -251,7 +282,6 @@ class _RequestListTileState extends State<RequestListTile> {
           FilledButton.tonalIcon(
             onPressed: widget.onSecondaryActionTap,
             label: LabelText(secondaryLabel, size: .large),
-            icon: Icon(Icons.cancel_outlined),
           ),
         ],
         FilledButton.icon(
@@ -363,6 +393,202 @@ class _RequestListTileState extends State<RequestListTile> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class NewRequestDialog extends StatefulWidget {
+  const new({super.key, required this.onClose, required this.onSubmit});
+  final VoidCallback onClose;
+  final VoidCallback onSubmit;
+
+  @override
+  State<NewRequestDialog> createState() => _NewRequestDialogState();
+}
+
+class _NewRequestDialogState extends State<NewRequestDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _locationController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_formKey.currentState!.validate()) {
+      context.read<RequestBoardCubit>().sendRequest(
+        _titleController.text,
+        _locationController.text,
+        _descriptionController.text,
+      );
+      widget.onClose();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final header = Row(
+      mainAxisAlignment: .spaceBetween,
+      children: [
+        HeadlineText("New Request", size: .small),
+        IconButton(
+          onPressed: widget.onClose,
+          icon: IconWithDefaults(Icons.close),
+        ),
+      ],
+    );
+
+    final body = Form(
+      key: _formKey,
+      child: Column(
+        spacing: 8,
+        children: [
+          RequestTextField(hintText: "Title", controller: _titleController),
+          RequestTextField(
+            maxInputLength: 100,
+            hintText: "Location",
+            controller: _locationController,
+          ),
+          Expanded(
+            child: RequestTextField(
+              maxInputLength: 1000,
+              hintText: "Description",
+              controller: _descriptionController,
+              showUnderLine: false,
+              onlyOneLine: false,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final actionButtons = Row(
+      spacing: DefaultSpacing.small,
+      children: [
+        SizedBox(
+          height: 40,
+          child: OutlinedButton(
+            onPressed: widget.onClose,
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: colorScheme.outlineVariant, width: 1.5),
+            ),
+            child: LabelText(
+              "Cancel",
+              size: .large,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 40,
+          child: FilledButton(
+            onPressed: _submit,
+            child: LabelText(
+              "Send Request",
+              size: .large,
+              color: colorScheme.onPrimary,
+            ),
+          ),
+        ),
+      ],
+    );
+
+    final footer = Row(
+      mainAxisAlignment: .spaceBetween,
+      children: [
+        StatusIndicator(
+          label: "Expires five minutes after sending.",
+          icon: Icons.info_outline,
+          color: colorScheme.outline,
+        ),
+        actionButtons,
+      ],
+    );
+
+    final container = FractionallySizedBox(
+      widthFactor: 0.7,
+      child: Padding(
+        padding: const .symmetric(vertical: DefaultSpacing.extraLarge),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          elevation: 2.0,
+          color: colorScheme.surfaceContainerLowest,
+          child: Padding(
+            padding: const .symmetric(
+              vertical: DefaultSpacing.medium,
+              horizontal: DefaultSpacing.large,
+            ),
+            child: Column(
+              spacing: DefaultSpacing.medium,
+              children: [
+                header,
+                Expanded(child: body),
+                footer,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return container;
+  }
+}
+
+class RequestTextField extends StatelessWidget {
+  const new({
+    super.key,
+    required this.hintText,
+    required this.controller,
+    this.showUnderLine = true,
+    this.onlyOneLine = true,
+    this.maxInputLength = 50,
+  });
+  final String hintText;
+  final TextEditingController controller;
+  final bool showUnderLine;
+  final bool onlyOneLine;
+  final int maxInputLength;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final border = showUnderLine
+        ? UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant,
+              width: 1.0,
+            ),
+          )
+        : InputBorder.none;
+
+    return TextFormField(
+      validator: (value) {
+        final emptyValueError = "This field cannot be empty.";
+
+        return value == null || value.trim().isEmpty ? emptyValueError : null;
+      },
+      decoration: InputDecoration(
+        hint: BodyText(hintText, size: .large, color: colorScheme.outline),
+        enabledBorder: border,
+        focusedBorder: border,
+        contentPadding: const .symmetric(vertical: 8),
+      ),
+      maxLines: onlyOneLine ? 1 : null,
+      maxLength: maxInputLength,
+      maxLengthEnforcement: .enforced,
+      controller: controller,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/routes.dart';
 import 'package:reachout_client/state/models/preferences.dart';
-import 'package:reachout_client/state/prefences_state.dart';
+import 'package:reachout_client/state/preferences_state.dart';
 import 'package:reachout_client/state/repositories/preference_repository.dart';
 import 'package:reachout_client/state/request_board_state.dart';
 
@@ -15,7 +15,7 @@ void main() {
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: preferencesCubit),
-        BlocProvider(create:(context) => RequestBoardCubit())
+        BlocProvider(create: (context) => RequestBoardCubit()),
       ],
       child: const MainApp(),
     ),

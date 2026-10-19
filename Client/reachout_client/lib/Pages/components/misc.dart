@@ -52,7 +52,7 @@ class StatusIndicator extends StatelessWidget {
       spacing: DefaultSpacing.small,
       children: [
         IconWithDefaults(icon, filled: true, color: color),
-        LabelText(label, size: .large, color: color),
+        BodyText(label, size: .medium, color: color),
       ],
     );
   }
