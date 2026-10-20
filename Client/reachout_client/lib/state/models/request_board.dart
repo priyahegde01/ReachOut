@@ -4,6 +4,7 @@ enum RequestStatus { none, pending, accepted }
 
 class Request {
   new({
+    required this.id,
     required this.title,
     required this.location,
     required this.description,
@@ -15,6 +16,7 @@ class Request {
     expires = created.add(timeToLive);
   }
 
+  final int id;
   final String title;
   final String location;
   final String description;

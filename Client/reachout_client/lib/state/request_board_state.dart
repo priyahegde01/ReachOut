@@ -22,9 +22,39 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
     );
   }
 
-  void sendRequest(String title, String location, String description) {
+  void sendRequest(
+    int userID,
+    String title,
+    String location,
+    String description,
+  ) {
+    // The ID is set to -1 because the server should be responsible for handling the assignment of IDs.
     _repository.sendRequest(
-      Request(title: title, location: location, description: description, type: .requestedByMe),
+      userID,
+      Request(
+        id: -1,
+        title: title,
+        location: location,
+        description: description,
+        type: .requestedByMe,
+      ),
     );
+  }
+
+  /// Take/accept the request with the ID [identifier].
+  void acceptRequest(int userID, int identifier) {
+    _repository.cancelRequest(userID, identifier);
+  }
+
+  /// Cancel the request with the ID [identifier]. 
+  /// 
+  /// This should be used to either remove the request from the board or remove the accepted status.
+  void cancelRequest(int userID, int identifier) {
+    _repository.cancelRequest(userID, identifier);
+  }
+
+  /// Take/accept the request with the ID [identifier].
+  void markRequestAsComplete(int userID, int identifier) {
+    _repository.cancelRequest(userID, identifier);
   }
 }

@@ -70,8 +70,6 @@ class _MainPageStructureState extends State<MainPageStructure> {
                   onClose: () => setState(() {
                     _showRequestCreationDialog = false;
                   }),
-                  // TODO: implement / implement in widget instead.
-                  onSubmit: () {},
                 ),
               ),
             ),
@@ -207,6 +205,10 @@ class RequestBoardSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final preferencesState = context.read<PreferencesCubit>().state as PreferencesLoadSuccess;
+    final requestBoardState = context.read<RequestBoardCubit>();
+    final userID = preferencesState.userID;
+
     return SliverPadding(
       padding: .only(bottom: DefaultSpacing.extraLarge),
       sliver: SliverList.separated(
@@ -219,8 +221,25 @@ class RequestBoardSection extends StatelessWidget {
           return RequestListTile(
             request: request,
             onExpiry: () {},
-            onPrimaryActionTap: () {},
-            onSecondaryActionTap: () {},
+            onPrimaryActionTap: () {
+              if (request.type == .acceptedByMe) {
+                requestBoardState.cancelRequest(userID, request.id);
+              } else if (request.type == .requestedByMe) {
+                // Mark as complete if accepted, cancel if not accepted.
+                if (request.status == .accepted) {
+                  requestBoardState.markRequestAsComplete(userID, request.id);
+                } else {
+                  requestBoardState.cancelRequest(userID, request.id);
+                }
+              } else {
+                requestBoardState.acceptRequest(userID, request.id);
+              }
+            },
+            onSecondaryActionTap: () {
+              if (request.type == .requestedByMe && request.status == .accepted) {
+                requestBoardState.cancelRequest(userID, request.id);
+              }
+            },
           );
         },
         separatorBuilder: (context, index) {
@@ -285,7 +304,7 @@ class _RequestListTileState extends State<RequestListTile> {
           ),
         ],
         FilledButton.icon(
-          onPressed: widget.onSecondaryActionTap,
+          onPressed: widget.onPrimaryActionTap,
           label: LabelText(
             primaryLabel,
             size: .large,
@@ -398,9 +417,8 @@ class _RequestListTileState extends State<RequestListTile> {
 }
 
 class NewRequestDialog extends StatefulWidget {
-  const new({super.key, required this.onClose, required this.onSubmit});
+  const new({super.key, required this.onClose});
   final VoidCallback onClose;
-  final VoidCallback onSubmit;
 
   @override
   State<NewRequestDialog> createState() => _NewRequestDialogState();
@@ -422,7 +440,12 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      final preferencesState =
+          context.read<PreferencesCubit>().state as PreferencesLoadSuccess;
+      final userID = preferencesState.userID;
+
       context.read<RequestBoardCubit>().sendRequest(
+        userID,
         _titleController.text,
         _locationController.text,
         _descriptionController.text,
