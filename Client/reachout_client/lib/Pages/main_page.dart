@@ -348,6 +348,10 @@ class _RequestListTileState extends State<RequestListTile> {
                 alignment: .centerStart,
                 child: BodyText(request.description, size: .large),
               ),
+              Align(
+                alignment: .centerStart,
+                child: BodyText("Location: ${request.location}", size: .large),
+              ),
               acceptanceIndicators,
             ],
           );
