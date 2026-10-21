@@ -31,7 +31,7 @@ async def handle_register_user(websocket, message):
     return {
         "type": "user_registered",
         "message": "User registered successfully",
-        "user_id":  new_user["user_id"]
+        "data": {"user_id": new_user["user_id"]}
     }
 
 async def handle_create_request(websocket, message):
@@ -57,7 +57,7 @@ async def handle_create_request(websocket, message):
     return {
         "type": "request_created",
         "message": "Request created successfully",
-        "request_id": new_request["request_id"]
+        "data": {"request_id": new_request["request_id"]}
     }
 
 
@@ -65,7 +65,7 @@ async def handle_list_requests(websocket, message):
     require_user(websocket)
     return {
         "type": "list_requests",
-        "requests": requests
+        "data": {"requests": requests}
     }
 
 async def handle_accept_request(websocket, message):
@@ -81,17 +81,19 @@ async def handle_accept_request(websocket, message):
                 return {
                     "type": "request_accepted",
                     "message": "Request accepted successfully",
-                    "request_id": request_id
+                    "data": {}
                 }
             else:
                 return {
                     "type": "error",
-                    "message": f"Request {request_id} is not available for acceptance."
+                    "message": f"Request {request_id} is not available for acceptance.",
+                    "data": {}
                 }
 
     return {
         "type": "error",
-        "message": f"Request {request_id} not found."
+        "message": f"Request {request_id} not found.",
+        "data": {}
     }
 
 async def handle_mark_request_as_complete(websocket, message):
@@ -104,20 +106,29 @@ async def handle_mark_request_as_complete(websocket, message):
             if request["status"] == "ACCEPTED" and request["user_id"] == user_id:
                 request["status"] = "COMPLETED"
                 request["completed_at"] = (datetime.now(timezone.utc)).isoformat()
+
+                for user in users:
+                    if user["user_id"] == user_id:
+                        user["completed_requests"].append(request_id)
+                        user["reward_points"] += 5
+                        break
+
                 return {
                     "type": "request_completed",
                     "message": "Request marked as completed successfully",
-                    "request_id": request_id
+                    "data": {}
                 }
             else:
                 return {
                     "type": "error",
-                    "message": f"Request {request_id} cannot be marked as completed by user {user_id}."
+                    "message": f"Request {request_id} cannot be marked as completed by user {user_id}.",
+                    "data": {}
                 }
 
     return {
         "type": "error",
-        "message": f"Request {request_id} not found."
+        "message": f"Request {request_id} not found.",
+        "data": {}
     }
 
 async def handle_verify_user(websocket, message):
@@ -130,13 +141,14 @@ async def handle_verify_user(websocket, message):
             return {
                 "type": "user_verified",
                 "message": "User verified successfully",
-                "user_id": input_user_id
+                "data": {"user_id": input_user_id}
             }
         
 
     return {
         "type": "error",
-        "message": f"User {input_user_id} not found."
+        "message": f"User {input_user_id} not found.",
+        "data": {}
     }
 
 
