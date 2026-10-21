@@ -36,6 +36,8 @@ class MainApp extends StatelessWidget {
             scaffoldBackgroundColor: Colors.white,
             colorScheme: ColorScheme.fromSeed(
               seedColor: const Color(0xFF38761D),
+            ).copyWith(
+              surface: Colors.white
             ),
           ),
           darkTheme: ThemeData.dark(),

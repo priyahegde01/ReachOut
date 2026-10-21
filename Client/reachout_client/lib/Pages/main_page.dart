@@ -385,6 +385,7 @@ class _RequestListTileState extends State<RequestListTile> {
     );
 
     final content = Column(
+      spacing: DefaultSpacing.medium,
       children: [
         nonExpandedcontent,
         if (expanded) ...[expandedContent],
