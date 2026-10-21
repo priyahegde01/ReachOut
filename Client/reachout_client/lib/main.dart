@@ -31,8 +31,12 @@ class MainApp extends StatelessWidget {
       builder: (context, state) {
         return MaterialApp.router(
           title: "ReachOut",
-          theme: ThemeData.light().copyWith(
-            colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF38761D)),
+          theme: ThemeData(
+            useMaterial3: true,
+            scaffoldBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF38761D),
+            ),
           ),
           darkTheme: ThemeData.dark(),
           themeMode: state is PreferencesLoadSuccess
