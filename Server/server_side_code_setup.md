@@ -9,5 +9,5 @@ You need to get few things set up before you can play with the server-side code.
 python3 -m venv .venv
 source .venv/bin/activate``
 - Install the requirements: <br>
-``python3 -m pip install -r requirements.txt``
+``python3 -m pip install -r requirements.txt`` <br>
 
