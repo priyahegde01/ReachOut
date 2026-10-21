@@ -16,10 +16,11 @@ final class PreferencesLoadingInProgress extends PreferencesState {
 final class PreferencesLoadSuccess extends PreferencesState {
   const new({required this.userID, required this.themeMode});
   
-  final int userID;
+  /// The ID the server gave this user, or null if not registered yet.
+  final String? userID;
   final ThemeMode themeMode;
 
-  PreferencesLoadSuccess copyWith({int? userID, ThemeMode? themeMode}) {
+  PreferencesLoadSuccess copyWith({String? userID, ThemeMode? themeMode}) {
     return PreferencesLoadSuccess(userID: userID ?? this.userID, themeMode: themeMode ?? this.themeMode);
   }
 }

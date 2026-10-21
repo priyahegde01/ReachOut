@@ -20,7 +20,7 @@ class PreferencesCubit extends Cubit<PreferencesState> {
       final userID = await _repository.userID;
       final themeMode = await _repository.themeMode;
 
-      emit(PreferencesLoadSuccess(userID: userID ?? -1, themeMode: themeMode ?? .system));
+      emit(PreferencesLoadSuccess(userID: userID, themeMode: themeMode ?? .system));
     } on Exception catch (e) {
       emit(PreferencesLoadFailure(exception: e));
     }
@@ -41,9 +41,10 @@ class PreferencesCubit extends Cubit<PreferencesState> {
     }
   }
 
-  set userID(int indentifier) {
+  set userID(String identifier) {
+    _repository.userID = identifier;
     if (state is PreferencesLoadSuccess) {
-      emit((state as PreferencesLoadSuccess).copyWith(userID: indentifier));
+      emit((state as PreferencesLoadSuccess).copyWith(userID: identifier));
     }
   }
 }

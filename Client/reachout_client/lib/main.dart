@@ -7,15 +7,16 @@ import 'package:reachout_client/state/repositories/preference_repository.dart';
 import 'package:reachout_client/state/request_board_state.dart';
 
 void main() {
+  // Must run first: the preferences cubit reads storage as soon as it's created.
+  WidgetsFlutterBinding.ensureInitialized();
   final preferences = PreferencesRepository();
   final preferencesCubit = PreferencesCubit(preferences);
-  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: preferencesCubit),
-        BlocProvider(create: (context) => RequestBoardCubit()),
+        BlocProvider(create: (context) => RequestBoardCubit(preferencesCubit)),
       ],
       child: const MainApp(),
     ),

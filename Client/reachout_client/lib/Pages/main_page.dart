@@ -205,9 +205,7 @@ class RequestBoardSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final preferencesState = context.read<PreferencesCubit>().state as PreferencesLoadSuccess;
     final requestBoardState = context.read<RequestBoardCubit>();
-    final userID = preferencesState.userID;
 
     return SliverPadding(
       padding: .only(bottom: DefaultSpacing.extraLarge),
@@ -223,21 +221,22 @@ class RequestBoardSection extends StatelessWidget {
             onExpiry: () {},
             onPrimaryActionTap: () {
               if (request.type == .acceptedByMe) {
-                requestBoardState.cancelRequest(userID, request.id);
+                requestBoardState.cancelRequest(request.id);
               } else if (request.type == .requestedByMe) {
                 // Mark as complete if accepted, cancel if not accepted.
                 if (request.status == .accepted) {
-                  requestBoardState.markRequestAsComplete(userID, request.id);
+                  requestBoardState.markRequestAsComplete(request.id);
                 } else {
-                  requestBoardState.cancelRequest(userID, request.id);
+                  requestBoardState.cancelRequest(request.id);
                 }
               } else {
-                requestBoardState.acceptRequest(userID, request.id);
+                requestBoardState.acceptRequest(request.id);
               }
             },
             onSecondaryActionTap: () {
-              if (request.type == .requestedByMe && request.status == .accepted) {
-                requestBoardState.cancelRequest(userID, request.id);
+              if (request.type == .requestedByMe &&
+                  request.status == .accepted) {
+                requestBoardState.cancelRequest(request.id);
               }
             },
           );
@@ -445,12 +444,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final preferencesState =
-          context.read<PreferencesCubit>().state as PreferencesLoadSuccess;
-      final userID = preferencesState.userID;
-
       context.read<RequestBoardCubit>().sendRequest(
-        userID,
         _titleController.text,
         _locationController.text,
         _descriptionController.text,

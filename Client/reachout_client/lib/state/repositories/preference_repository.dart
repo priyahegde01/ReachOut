@@ -8,7 +8,7 @@ class PreferencesRepository {
   static const String _userIDKey = "user ID";
 
   ThemeMode? _themeMode;
-  int? _userID;
+  String? _userID;
 
   Future<ThemeMode?> get themeMode async {
     if (_themeMode == null) {
@@ -25,14 +25,13 @@ class PreferencesRepository {
     _themeMode = mode;
   }
 
-  Future<int?> get userID async {
-    if (_userID != null) {
-      _userID = await _asyncPreferences.getInt(_userIDKey);
-    }
+  Future<String?> get userID async {
+    _userID ??= await _asyncPreferences.getString(_userIDKey);
     return _userID;
   }
 
-  set userID(int identifier) {
-    _asyncPreferences.setInt(_userIDKey, identifier);
+  set userID(String identifier) {
+    _asyncPreferences.setString(_userIDKey, identifier);
+    _userID = identifier;
   }
 }

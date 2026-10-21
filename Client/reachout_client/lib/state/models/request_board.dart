@@ -1,6 +1,6 @@
 enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
 
-enum RequestStatus { none, pending, accepted }
+enum RequestStatus { none, pending, accepted, completed }
 
 class Request {
   new({
