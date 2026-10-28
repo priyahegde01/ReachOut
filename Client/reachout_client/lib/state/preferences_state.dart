@@ -1,26 +1,37 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/state/models/preferences.dart';
+import 'package:reachout_client/state/repositories/network_repository.dart';
 import 'package:reachout_client/state/repositories/preference_repository.dart';
 
 /// Manages the state of the user's settings
 ///
 /// This includes things such as loading settings and updating settings.
 class PreferencesCubit extends Cubit<PreferencesState> {
-  PreferencesCubit(this._repository) : super(const PreferencesInitial()) {
+  final PreferencesRepository _repository;
+  final NetworkRepository _networkRepository;
+
+  PreferencesCubit(this._repository, this._networkRepository) : super(const PreferencesInitial()) {
     loadPreferences();
   }
-
-  final PreferencesRepository _repository;
+  
+  
 
   Future<void> loadPreferences() async {
     emit(const PreferencesLoadingInProgress());
 
     try {
-      final userID = await _repository.userID;
+      var uuid = await _repository.userID;
       final themeMode = await _repository.themeMode;
+      
+      if (uuid == null) {
+        _networkRepository.requestNewUserID(setUUID);
+      } else {
+        _networkRepository.verifyUserID(uuid, setUUID);
+      }
 
-      emit(PreferencesLoadSuccess(userID: userID, themeMode: themeMode ?? .system));
+      // UUID is set later.
+      emit(PreferencesLoadSuccess(userID: "Initial", themeMode: themeMode ?? .system));
     } on Exception catch (e) {
       emit(PreferencesLoadFailure(exception: e));
     }
@@ -46,5 +57,9 @@ class PreferencesCubit extends Cubit<PreferencesState> {
     if (state is PreferencesLoadSuccess) {
       emit((state as PreferencesLoadSuccess).copyWith(userID: identifier));
     }
+  }
+
+  void setUUID(String uuid) {
+    userID = uuid;
   }
 }
