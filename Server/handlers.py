@@ -70,6 +70,7 @@ def handle_create_request(websocket, message):
         "user_id": user_id,
         "title": data.get("title"),
         "description": data.get("description"),
+        "title": data.get("title"),
         "location": data.get("location"),
         "status": "UNACCEPTED",
         "created_at": (datetime.now(timezone.utc)).isoformat(),
