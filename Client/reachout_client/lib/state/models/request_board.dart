@@ -10,7 +10,7 @@ class Request {
     required this.description,
     required this.type,
     this.status = .none,
-    this.timeToLive = const Duration(seconds: 100)
+    this.timeToLive = const Duration(seconds: 10)
   }) {
     created = DateTime.now();
     expires = created.add(timeToLive);
