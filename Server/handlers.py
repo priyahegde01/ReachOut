@@ -44,6 +44,7 @@ async def handle_create_request(websocket, message):
         "request_id": request_id,
         "user_id": user_id,
         "description": data.get("description"),
+        "title": data.get("title"),
         "location": data.get("location"),
         "status": "UNACCEPTED",
         "created_at": (datetime.now(timezone.utc)).isoformat(),
