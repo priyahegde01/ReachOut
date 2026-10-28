@@ -86,7 +86,7 @@ class RequestRepository {
 
   void _onMessage(dynamic raw) {
     final Map<String, dynamic> msg = jsonDecode(raw as String);
-    final data = (msg["data"] ?? {}) as Map<String, dynamic>;
+    final data = (msg["data"] ?? <String, dynamic>{}) as Map<String, dynamic>;
 
     switch (msg["type"]) {
       case "user_registered":
@@ -122,7 +122,7 @@ class RequestRepository {
       completer.completeError(StateError(message));
     } else {
       // ignore: avoid_print
-      print("Backend error: $message");
+      print("Server error: $message");
     }
   }
 
