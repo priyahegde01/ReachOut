@@ -10,10 +10,11 @@ class RequestRepository {
       {}; // request id -> expires_at (or add expiresAt to Request)
 
   String? _userId;
-  Completer<String>? _userIdCompleter;
+  Completer<String>? _authCompleter;
+  // Completer<String>? _userIdCompleter;
 
   late final WebSocketChannel channel;
-  final int port = 8080;
+  final int port = 8000;
   Timer? _expiryTimer;
 
   // Cubits listen to this and emit a new state when it fires.
@@ -23,7 +24,9 @@ class RequestRepository {
 
   RequestRepository() {
     // Android emulator: use 10.0.2.2 instead of localhost.
-    channel = WebSocketChannel.connect(Uri.parse("ws://localhost:$port"));
+    channel = WebSocketChannel.connect(
+      Uri.parse("ws://127.0.0.1:$port/server"),
+    );
     channel.stream.listen(
       _onMessage,
       // ignore: avoid_print
@@ -58,14 +61,42 @@ class RequestRepository {
     );
   }
 
+  // void _onMessage(dynamic raw) {
+  //   final Map<String, dynamic> msg = jsonDecode(raw as String);
+  //   final data = (msg["data"] ?? {}) as Map<String, dynamic>;
+  //   switch (msg["type"]) {
+  //     case "user_registered":
+  //       _handleUserRegistered(data);
+  //     case "request_created":
+  //       _handleRequestCreated(data);
+  //     case "read_all_requests":
+  //       _handleReadAllRequests(data);
+  //     default:
+  //       // ignore: avoid_print
+  //       print("Unhandled message: $msg");
+  //   }
+  // }
+
+  // // ---------- Handlers ----------
+
+  // void _handleUserRegistered(Map<String, dynamic> data) {
+  //   _userId = data["user_id"] as String;
+  //   _userIdCompleter?.complete(_userId);
+  // }
+
   void _onMessage(dynamic raw) {
     final Map<String, dynamic> msg = jsonDecode(raw as String);
     final data = (msg["data"] ?? {}) as Map<String, dynamic>;
+
     switch (msg["type"]) {
       case "user_registered":
-        _handleUserRegistered(data);
+      case "user_verified":
+        _handleUserAuthenticated(data);
+      case "error":
+        _handleServerError(msg);
       case "request_created":
         _handleRequestCreated(data);
+      case "list_requests":
       case "read_all_requests":
         _handleReadAllRequests(data);
       default:
@@ -74,11 +105,25 @@ class RequestRepository {
     }
   }
 
-  // ---------- Handlers ----------
-
-  void _handleUserRegistered(Map<String, dynamic> data) {
+  void _handleUserAuthenticated(Map<String, dynamic> data) {
     _userId = data["user_id"] as String;
-    _userIdCompleter?.complete(_userId);
+    final completer = _authCompleter;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(_userId!);
+    }
+  }
+
+  void _handleServerError(Map<String, dynamic> msg) {
+    final completer = _authCompleter;
+    final message =
+        msg["message"] as String? ?? "The server returned an error.";
+
+    if (completer != null && !completer.isCompleted) {
+      completer.completeError(StateError(message));
+    } else {
+      // ignore: avoid_print
+      print("Backend error: $message");
+    }
   }
 
   void _handleRequestCreated(Map<String, dynamic> data) {
@@ -96,10 +141,13 @@ class RequestRepository {
   }
 
   Request _requestFromJson(Map<String, dynamic> j) {
-    final id = j["id"] as int;
+    // final id = j["id"] as int;
+    final id = (j["id"] ?? j["request_id"]) as int;
     if (j["expires_at"] != null) _expiry[id] = DateTime.parse(j["expires_at"]);
 
-    final createdBy = j["created_by"] as String?;
+    final createdBy = (j["created_by"] ?? j["user_id"]) as String?;
+
+    // final createdBy = j["created_by"] as String?;
     final acceptedBy = j["accepted_by"] as String?;
     // Without a user ID nothing can be "mine"; comparing null to null would
     // wrongly mark every unaccepted request as accepted by me.
@@ -118,7 +166,8 @@ class RequestRepository {
 
     return Request(
       id: id,
-      title: j["title"],
+      // title: j["title"],
+      title: (j["title"] ?? j["description"] ?? "") as String,
       location: j["location"],
       description: j["description"],
       type: type,
@@ -145,14 +194,44 @@ class RequestRepository {
   ///
   /// Pass [savedId] when an ID was stored by an earlier launch, so the same
   /// user is kept instead of registering a new one.
-  Future<String> requestUserID({String? savedId}) {
-    _userId ??= savedId;
-    if (_userId != null) return Future.value(_userId!);
-    if (_userIdCompleter == null) {
-      _userIdCompleter = Completer<String>();
-      _send("register_user");
+  // Future<String> requestUserID({String? savedId}) {
+  //   _userId ??= savedId;
+  //   if (_userId != null) return Future.value(_userId!);
+  //   if (_userIdCompleter == null) {
+  //     _userIdCompleter = Completer<String>();
+  //     _send("register_user");
+  //   }
+  //   return _userIdCompleter!.future;
+  // }
+
+  Future<String> registerUser() {
+    return _authenticate("register_user");
+  }
+
+  Future<String> verifyUser(String userId) {
+    return _authenticate("verify_user", data: {"user_id": userId});
+  }
+
+  Future<String> _authenticate(
+    String type, {
+    Map<String, dynamic> data = const {},
+  }) {
+    final existingCompleter = _authCompleter;
+    if (existingCompleter != null && !existingCompleter.isCompleted) {
+      return Future<String>.error(
+        StateError("Authentication is already in progress."),
+      );
     }
-    return _userIdCompleter!.future;
+
+    final completer = Completer<String>();
+    _authCompleter = completer;
+    _send(type, data: data);
+
+    return completer.future.whenComplete(() {
+      if (identical(_authCompleter, completer)) {
+        _authCompleter = null;
+      }
+    });
   }
 
   void refresh() => _send("list_requests");

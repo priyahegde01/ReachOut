@@ -14,7 +14,7 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
     // (server responses and expired requests being removed).
     _subscription = _repository.changes.listen((_) => loadRequestBoard());
 
-    _start();
+    // _start();
 
     // For testing purposes.
     //emit(RequestBoardLoadFailure(exception: Exception("Hell.")));
@@ -25,21 +25,60 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
   final RequestRepository _repository;
   late final StreamSubscription<void> _subscription;
 
+  bool _isAuthenticated = false;
+  bool get isAuthenticated => _isAuthenticated;
+
   /// Gets the user ID, then loads the board.
   ///
   /// The user ID must be known before the list is fetched, because the
   /// repository uses it to work out requestedByMe / acceptedByMe.
-  Future<void> _start() async {
-    final prefs = _preferences.state is PreferencesLoadSuccess
+  // Future<void> _start() async {
+  //   final prefs = _preferences.state is PreferencesLoadSuccess
+  //       ? _preferences.state
+  //       : await _preferences.stream.firstWhere(
+  //           (s) => s is PreferencesLoadSuccess || s is PreferencesLoadFailure,
+  //         );
+  //   final savedId = prefs is PreferencesLoadSuccess ? prefs.userID : null;
+
+  //   final userId = await _repository.requestUserID(savedId: savedId);
+  //   if (userId != savedId) _preferences.userID = userId;
+  //   _repository.refresh();
+  // }
+
+  Future<void> registerNewUser() async {
+    final userId = await _repository.registerUser();
+    _preferences.userID = userId;
+    _isAuthenticated = true;
+    _repository.refresh();
+  }
+
+  Future<void> loginWithUserID(String userId) async {
+    final verifiedId = await _repository.verifyUser(userId);
+    _preferences.userID = verifiedId;
+    _isAuthenticated = true;
+    _repository.refresh();
+  }
+
+  Future<bool> restoreSavedUser() async {
+    final preferencesState = _preferences.state is PreferencesLoadSuccess
         ? _preferences.state
         : await _preferences.stream.firstWhere(
-            (s) => s is PreferencesLoadSuccess || s is PreferencesLoadFailure,
+            (state) =>
+                state is PreferencesLoadSuccess ||
+                state is PreferencesLoadFailure,
           );
-    final savedId = prefs is PreferencesLoadSuccess ? prefs.userID : null;
 
-    final userId = await _repository.requestUserID(savedId: savedId);
-    if (userId != savedId) _preferences.userID = userId;
-    _repository.refresh();
+    if (preferencesState is! PreferencesLoadSuccess) return false;
+
+    final savedId = preferencesState.userID;
+    if (savedId == null || savedId.isEmpty) return false;
+
+    try {
+      await loginWithUserID(savedId);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   void loadRequestBoard() {
