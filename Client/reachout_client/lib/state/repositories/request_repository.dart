@@ -59,7 +59,6 @@ class RequestRepository {
           ? status == .accepted
                 ? acceptedBy != null && acceptedBy.compareTo(myUUID) == 0
                       ? .acceptedByMe
-                      // TODO: add enum to ignore this request (not show it)
                       : .ignore
                 : .requestedByOther
           : .requestedByMe,
