@@ -9,7 +9,6 @@ requestLifetime = timedelta(minutes=5)
 
 
 def require_user(websocket):
-    print(f"Users connected: {connected_users}")
     user_id = connected_users.get(websocket)
     if user_id is None:
         raise PermissionError(
@@ -17,13 +16,14 @@ def require_user(websocket):
     return user_id
 
 
-def handle_verify_user(websocket, message):
+async def handle_verify_user(websocket, message):
     data = message["data"]
     input_user_id = data.get("user_id")
 
     for user in users:
         if user["user_id"] == input_user_id:
             connected_users[websocket] = input_user_id
+            await send_user_points(websocket, "")
             return {
                 "type": "Valid ID",
                 "message": "User verified successfully",
@@ -37,7 +37,7 @@ def handle_verify_user(websocket, message):
     }
 
 
-def handle_register_user(websocket, message):
+async def handle_register_user(websocket, message):
     existing_ids = {user["user_id"] for user in users}
     user_id = str(uuid4())
     while user_id in existing_ids:
@@ -54,6 +54,8 @@ def handle_register_user(websocket, message):
     users.append(new_user)
     connected_users[websocket] = user_id
 
+    await send_user_points(websocket, "")
+
     return {
         "type": "user_registered",
         "message": "User registered successfully",
@@ -61,7 +63,7 @@ def handle_register_user(websocket, message):
     }
 
 
-def handle_create_request(websocket, message):
+async def handle_create_request(websocket, message):
     data = message["data"]
     request_id = data_store.next_request_id
     data_store.next_request_id += 1
@@ -90,14 +92,14 @@ def handle_create_request(websocket, message):
     }
 
 
-def handle_list_requests(websocket, message):
+async def handle_list_requests(websocket, message):
     return {
         "type": "list_requests",
         "data": {"requests": requests}
     }
 
 
-def handle_accept_request(websocket, message):
+async def handle_accept_request(websocket, message):
     request_id = message["request_id"]
     user_id = require_user(websocket)
 
@@ -125,43 +127,54 @@ def handle_accept_request(websocket, message):
     }
 
 
-def handle_mark_request_as_complete(websocket, message):
+def _removeRequestWithID(requestID: str):
+    for i, request in enumerate(data_store.requests):
+        if (request["request_id"] == requestID):
+            data_store.requests.pop(i)
+
+
+def _getRequestFromID(requestID: str):
+    for request in data_store.requests:
+        if (request["request_id"] == requestID):
+            return request
+    return None
+
+
+async def handle_mark_request_as_complete(websocket, message):
     request_id = message["request_id"]
+    request = _getRequestFromID(request_id)
+    if (request == None):
+        return {
+            "type": "error",
+            "message": f"Request {request_id} not found.",
+            "data": {}
+        }
+
     user_id = require_user(websocket)
+    if request["status"] == "ACCEPTED" and request["user_id"] == user_id:
+        acceptingUserID = request["accepted_by"]
+        acceptingUserIDSocket = next(
+            (k for k, v in connected_users.items() if v == acceptingUserID), None)
 
-    for request in requests:
-        if request["request_id"] == request_id:
-            if request["status"] == "ACCEPTED" and request["user_id"] == user_id:
-                request["status"] = "COMPLETED"
-                request["completed_at"] = (
-                    datetime.now(timezone.utc)).isoformat()
-
-                for user in users:
-                    if user["user_id"] == user_id:
-                        user["completed_requests"].append(request_id)
-                        user["reward_points"] += 5
-                        break
-
+        for user in users:
+            if user["user_id"] == acceptingUserID:
+                _removeRequestWithID(request_id)
+                user["reward_points"] += 5
+                await send_user_points(acceptingUserIDSocket, "")
                 return {
                     "type": "request_completed",
-                    "message": "Request marked as completed successfully",
-                    "data": {"requests": requests}
+                            "message": "Request marked as completed successfully",
+                            "data": {"requests": requests}
                 }
-            else:
-                return {
-                    "type": "error",
-                    "message": f"Request {request_id} cannot be marked as completed by user {user_id}.",
-                    "data": {}
-                }
-
-    return {
-        "type": "error",
-        "message": f"Request {request_id} not found.",
-        "data": {}
-    }
+    else:
+        return {
+            "type": "error",
+            "message": f"Request {request_id} cannot be marked as completed by user {user_id}.",
+            "data": {}
+        }
 
 
-def handle_cancel_request(websocket, message):
+async def handle_cancel_request(websocket, message):
     """Handles the 'cancel_request' WebSocket action.
     According to project requirements, when a service provider who accepted a 
     request (or the requester who created it) cancels the action, the request 
@@ -213,43 +226,42 @@ def handle_cancel_request(websocket, message):
     }
 
 
-def handle_user_details(websocket, message):
-    """Handles the 'user_details' WebSocket action.
-    Retrieves and returns details for a specified user (or the currently authenticated 
-    user), including their total accumulated reward points and request history."""
+async def send_user_points(websocket, _):
+    """Sends a points update to the user attributed to the websocket.
+    """
 
-    # 1. Ensure the requesting client is authenticated
-    authenticated_user_id = require_user(websocket)
+    user_id = require_user(websocket)
 
-    # 2. Extract target user_id from top-level payload or 'data' map, defaulting to the authenticated caller if not explicitly provided
-    data = message.get("data", {})
-    target_user_id = message.get("user_id")
-    if target_user_id is None and isinstance(data, dict):
-        target_user_id = data.get("user_id")
-
-    if not target_user_id:
-        target_user_id = authenticated_user_id
-
-    # 3. Search for the user record in data_store.users
     for user in users:
-        if user["user_id"] == target_user_id:
-            return {
-
+        if user["user_id"] == user_id:
+            toSend = {
                 "type": "user_details",
                 "message": "User details retrieved successfully",
                 "data": {
+                    "reward_points": user["reward_points"],
+                }
+            }
+            await websocket.send_json(toSend)
+            return
 
-                    "user_id": user["user_id"],
-                    "reward_points": user.get("reward_points", 0),
-                    "raised_requests": user.get("raised_requests", []),
-                    "accepted_requests": user.get("accepted_requests", []),
-                    "completed_requests": user.get("completed_requests", [])
+
+async def handle_send_user_points(websocket, _):
+    """Handles the 'user_details' WebSocket action.
+    Retrieves and returns details for a specified user (their points)."""
+
+    user_id = require_user(websocket)
+
+    for user in users:
+        if user["user_id"] == user_id:
+            return {
+                "type": "user_details",
+                "message": "User details retrieved successfully",
+                "data": {
+                    "reward_points": user["reward_points"],
                 }
             }
 
-    # 4. Return error response if the target user ID does not exist
     return {
-
         "type": "error",
-        "message": f"User {target_user_id} not found."
+        "message": f"User not found."
     }

@@ -69,7 +69,6 @@ app = FastAPI(title="ReachOut API", lifespan=lifespan)
 def isUpdate(operation: str):
     return operation in ["create_request", "accept_request", "mark_request_as_complete", "cancel_request"]
 
-
 @app.websocket("/server")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -86,7 +85,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "accept_request": handle_accept_request,
                 "mark_request_as_complete": handle_mark_request_as_complete,
                 "cancel_request": handle_cancel_request,
-                "user_details": handle_user_details,
+                "user_details": handle_send_user_points,
                 "verify_user": handle_verify_user,
             }.get(message_type)
 
@@ -97,7 +96,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 })
                 continue
             try:
-                result = handler(websocket, message)
+                result = await handler(websocket, message)
             except PermissionError as exc:
                 await websocket.send_json({
                     "type": "error",
@@ -106,6 +105,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 continue
 
             await websocket.send_json(result)
+
             if isUpdate(message_type):
                 await broadcastRequestBoard()
 
