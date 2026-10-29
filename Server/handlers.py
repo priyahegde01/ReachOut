@@ -5,10 +5,11 @@ from uuid import uuid4
 import data_store
 from data_store import *
 
-requestLifetime = timedelta(seconds=5)
+requestLifetime = timedelta(minutes=5)
 
 
 def require_user(websocket):
+    print(f"Users connected: {connected_users}")
     user_id = connected_users.get(websocket)
     if user_id is None:
         raise PermissionError(
@@ -22,6 +23,7 @@ def handle_verify_user(websocket, message):
 
     for user in users:
         if user["user_id"] == input_user_id:
+            connected_users[websocket] = input_user_id
             return {
                 "type": "Valid ID",
                 "message": "User verified successfully",
