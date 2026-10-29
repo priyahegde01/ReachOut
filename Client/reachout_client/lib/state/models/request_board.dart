@@ -1,4 +1,4 @@
-enum RequestType { acceptedByMe, requestedByMe, requestedByOther }
+enum RequestType { acceptedByMe, requestedByMe, requestedByOther, ignore }
 
 enum RequestStatus { none, pending, accepted, completed }
 

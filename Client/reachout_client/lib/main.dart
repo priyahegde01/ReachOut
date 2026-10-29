@@ -14,7 +14,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final preferences = PreferencesRepository();
   final requests = RequestRepository();
-  final networking = NetworkRepository(port: 8000);
+  final networking = NetworkRepository(port: 8000, serverIP: "192.168.68.111");
   final preferencesCubit = PreferencesCubit(preferences, networking);
   final requestsCubit = RequestBoardCubit(requests, networking, preferences);
   final statusStateCubit = StatusStateCubit(networking);

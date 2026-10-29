@@ -63,7 +63,7 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
 
   /// Mark the request with the ID [identifier] as completed.
   void markRequestAsComplete(int identifier) {
-    _networkRepository.send("mark_request_completed", requestId: identifier);
+    _networkRepository.send("mark_request_as_complete", requestId: identifier);
   }
 
   @override

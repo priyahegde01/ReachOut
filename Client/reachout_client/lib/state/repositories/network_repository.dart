@@ -121,6 +121,7 @@ class NetworkRepository {
 
   void _handleNewUserDetails(Map<String, dynamic> data) {
     final points = data["reward_points"];
+    print("Handled new user, Points: $points");
     onNewUserDetails(points);
   }
 

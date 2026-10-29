@@ -37,7 +37,8 @@ class RequestRepository {
 
   Request _requestFromJson(Map<String, dynamic> jsonData, String myUUID) {
     final id = jsonData["request_id"] as int;
-    final userID = jsonData["user_id"] as String;
+    final createdBy = jsonData["user_id"] as String;
+    final String? acceptedBy = jsonData["accepted_by"];
 
     final status = switch (jsonData["status"]) {
       "ACCEPTED" => RequestStatus.accepted,
@@ -54,10 +55,13 @@ class RequestRepository {
       title: (jsonData["title"] ?? jsonData["description"] ?? "") as String,
       location: jsonData["location"],
       description: jsonData["description"],
-      type: userID.compareTo(myUUID) != 0
-          ? .requestedByOther
-          : status == .accepted
-          ? .acceptedByMe
+      type: createdBy.compareTo(myUUID) != 0
+          ? status == .accepted
+                ? acceptedBy != null && acceptedBy.compareTo(myUUID) == 0
+                      ? .acceptedByMe
+                      // TODO: add enum to ignore this request (not show it)
+                      : .ignore
+                : .requestedByOther
           : .requestedByMe,
       status: status,
       timeToLive: lifetime,
