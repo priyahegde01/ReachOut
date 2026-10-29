@@ -6,7 +6,7 @@ class NetworkRepository {
   final int port = 8000;
   late final WebSocketChannel _channel;
   Function (String) onNewID = (_) {};
-  Function(Map<String, dynamic>) onNewRequestBoardData = (_) {print("Nothing done");};
+  Function(Map<String, dynamic>) onNewRequestBoardData = (_) {};
 
   new() {
     _channel = WebSocketChannel.connect(

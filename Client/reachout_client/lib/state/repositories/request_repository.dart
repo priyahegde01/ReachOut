@@ -30,7 +30,6 @@ class RequestRepository {
 
   /// Reads request data from JSON
   void readRequestData(Map<String, dynamic> data, String myUUID) {
-    print("Request list");
     final list = (data["requests"] as List).cast<Map<String, dynamic>>();
     _requests = list.map((e) => _requestFromJson(e, myUUID)).toList();
     _changes.add(null);
