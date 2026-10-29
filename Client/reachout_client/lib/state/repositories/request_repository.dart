@@ -55,7 +55,6 @@ class RequestRepository {
       title: (jsonData["title"] ?? jsonData["description"] ?? "") as String,
       location: jsonData["location"],
       description: jsonData["description"],
-      // TODO: fix this!
       type: userID.compareTo(myUUID) != 0
           ? .requestedByOther
           : status == .accepted

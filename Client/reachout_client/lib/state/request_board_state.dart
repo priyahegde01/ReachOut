@@ -18,8 +18,8 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
 
     _subscription = _repository.changes.listen((_) => _emitRequestBoard());
     _networkRepository.requestListData((data) async {
-      String? UUID = await _preferencesRepository.userID;
-      return _repository.readRequestData(data, UUID ?? "None");
+      String? uuid = await _preferencesRepository.userID;
+      return _repository.readRequestData(data, uuid ?? "None");
     });
   }
 
