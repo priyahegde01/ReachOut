@@ -44,6 +44,7 @@ final class RequestBoardLoadSuccess extends RequestBoardState {
     required this.accepted,
     required this.requestedByMe,
     required this.requestedByOthers,
+    required this.points
   });
 
   // "Me" refers to the user running this client, while "Others" refers
@@ -51,6 +52,7 @@ final class RequestBoardLoadSuccess extends RequestBoardState {
   final List<Request> accepted;
   final List<Request> requestedByMe;
   final List<Request> requestedByOthers;
+  final int points;
 }
 
 final class RequestBoardLoadFailure extends RequestBoardState {

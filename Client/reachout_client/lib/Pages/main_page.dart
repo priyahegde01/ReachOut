@@ -1,11 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:reachout_client/Pages/components/misc.dart';
 import 'package:reachout_client/Pages/components/text.dart';
 import 'package:reachout_client/state/models/preferences.dart';
 import 'package:reachout_client/state/models/request_board.dart';
+import 'package:reachout_client/state/models/status.dart';
 import 'package:reachout_client/state/preferences_state.dart';
 import 'package:reachout_client/state/request_board_state.dart';
+import 'package:reachout_client/state/status_state.dart';
 
 class MainPage extends StatelessWidget {
   const new({super.key});
@@ -90,49 +93,58 @@ class MainPageStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorTheme = Theme.of(context).colorScheme;
 
-    final content = BlocBuilder<PreferencesCubit, PreferencesState>(
+    final themeIndicator = BlocBuilder<PreferencesCubit, PreferencesState>(
       builder: (context, state) {
         return switch (state) {
-          PreferencesLoadSuccess() => Row(
-            spacing: DefaultSpacing.large,
-            children: [
-              TextButton(
-                onPressed: () {
-                  context.read<PreferencesCubit>().switchThemeMode();
-                },
-                child: StatusIndicator(
-                  label: [
-                    "System default",
-                    "Light",
-                    "Dark",
-                  ][state.themeMode.index],
-                  icon: [
-                    Icons.brightness_auto,
-                    Icons.light_mode,
-                    Icons.dark_mode,
-                  ][state.themeMode.index],
-                ),
-              ),
-              StatusIndicator(label: "connected", icon: Icons.wifi),
-              LabelText("64 points earned", size: .large),
-            ],
+          PreferencesLoadSuccess() => TextButton(
+            onPressed: () {
+              context.read<PreferencesCubit>().switchThemeMode();
+            },
+            child: StatusIndicator(
+              label: ["System default", "Light", "Dark"][state.themeMode.index],
+              icon: [
+                Icons.brightness_auto,
+                Icons.light_mode,
+                Icons.dark_mode,
+              ][state.themeMode.index],
+            ),
           ),
-          PreferencesLoadingInProgress() => Row(
-            spacing: DefaultSpacing.large,
-            children: [
-              CircularProgressIndicator(),
-              LabelText("Loading preferences", size: .large),
-            ],
+          PreferencesLoadingInProgress() => LabelText(
+            "Loading preferences",
+            size: .large,
           ),
-          PreferencesLoadFailure() => Row(
-            spacing: DefaultSpacing.large,
-            children: [
-              Icon(Icons.error_outline, color: colorTheme.error),
-              LabelText("Failed to load preferences", size: .large),
-            ],
+          PreferencesLoadFailure() => LabelText(
+            "Failed to load theme",
+            size: .large,
           ),
           PreferencesInitial() => SizedBox.shrink(),
         };
+      },
+    );
+
+    final content = BlocBuilder<StatusStateCubit, StatusState>(
+      builder: (context, state) {
+        if (state is StatusSuccess) {
+          final serverConnectionIndicator = state.hasServerConnection
+              ? StatusIndicator(label: "Connected", icon: Symbols.sync_arrow_up)
+              : StatusIndicator(
+                  label: "Disconnected",
+                  icon: Symbols.sync_arrow_down,
+                );
+
+          final points = state.points;
+
+          return Row(
+            spacing: DefaultSpacing.large,
+            children: [
+              themeIndicator,
+              serverConnectionIndicator,
+              LabelText("$points points earned", size: .large),
+            ],
+          );
+        }
+
+        return SizedBox.shrink();
       },
     );
 

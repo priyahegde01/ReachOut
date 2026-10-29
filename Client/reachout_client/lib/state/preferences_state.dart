@@ -15,8 +15,6 @@ class PreferencesCubit extends Cubit<PreferencesState> {
     loadPreferences();
   }
   
-  
-
   Future<void> loadPreferences() async {
     emit(const PreferencesLoadingInProgress());
 

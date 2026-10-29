@@ -9,6 +9,7 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
   final RequestRepository _repository;
   final NetworkRepository _networkRepository;
   final PreferencesRepository _preferencesRepository;
+  int points = 0;
   late final StreamSubscription<void> _subscription;
 
   RequestBoardCubit(this._repository, this._networkRepository, this._preferencesRepository)
@@ -29,6 +30,7 @@ class RequestBoardCubit extends Cubit<RequestBoardState> {
         accepted: _repository.acceptedRequests,
         requestedByMe: _repository.requestedByMe,
         requestedByOthers: _repository.requestedByOthers,
+        points: points
       ),
     );
   }
