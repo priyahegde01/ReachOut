@@ -2,22 +2,24 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reachout_client/state/models/request_board.dart';
 import 'package:reachout_client/state/repositories/network_repository.dart';
+import 'package:reachout_client/state/repositories/preference_repository.dart';
 import 'package:reachout_client/state/repositories/request_repository.dart';
 
 class RequestBoardCubit extends Cubit<RequestBoardState> {
   final RequestRepository _repository;
   final NetworkRepository _networkRepository;
-  final String UUID;
+  final PreferencesRepository _preferencesRepository;
   late final StreamSubscription<void> _subscription;
 
-  RequestBoardCubit(this._repository, this._networkRepository, this.UUID)
+  RequestBoardCubit(this._repository, this._networkRepository, this._preferencesRepository)
     : super(const RequestBoardEmpty()) {
     // Rebuild the board whenever the repository's list changes
     // (server responses and expired requests being removed).
 
     _subscription = _repository.changes.listen((_) => _emitRequestBoard());
-    _networkRepository.requestListData((data) {
-      return _repository.readRequestData(data, UUID);
+    _networkRepository.requestListData((data) async {
+      String? UUID = await _preferencesRepository.userID;
+      return _repository.readRequestData(data, UUID ?? "None");
     });
   }
 

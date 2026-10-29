@@ -17,8 +17,8 @@ void main() {
   final preferencesCubit = PreferencesCubit(preferences, networking);
   // TODO: get UUID and pass it to requestsCubit. Make sure that it actually has a UUID before passing it.
   // You'll probably need to wait for some event before proceeding.
-
-  final requestsCubit = RequestBoardCubit(requests, networking, );
+  
+  final requestsCubit = RequestBoardCubit(requests, networking, preferences);
 
   runApp(
     MultiBlocProvider(
